@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planning Immobilier — Éditeur de phases</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --navy: #0f2544;
@@ -37,7 +37,8 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 10px;
   background: var(--gray-50);
   color: var(--gray-900);
   min-height: 100vh;
@@ -81,7 +82,7 @@ header {
 }
 .header-actions { display: flex; gap: 8px; }
 .btn-header {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 12px;
   font-weight: 500;
   padding: 7px 16px;
@@ -125,7 +126,7 @@ header {
 .field-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
 .field-group label { font-size: 12px; color: var(--gray-700); font-weight: 500; }
 input[type=date], input[type=text], textarea, select {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 13px;
   padding: 8px 10px;
   border: 1px solid var(--gray-200);
@@ -196,7 +197,7 @@ textarea { resize: vertical; min-height: 56px; line-height: 1.5; font-size: 12px
 .phase-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .phase-fields .full { grid-column: 1 / -1; }
 .btn-del-phase {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 11px;
   color: var(--coral);
   background: none;
@@ -210,7 +211,7 @@ textarea { resize: vertical; min-height: 56px; line-height: 1.5; font-size: 12px
 .btn-del-phase:hover { background: var(--coral-light); }
 
 .btn-add-phase {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   width: 100%;
   padding: 9px;
   background: none;
@@ -225,8 +226,18 @@ textarea { resize: vertical; min-height: 56px; line-height: 1.5; font-size: 12px
 .btn-add-phase:hover { border-color: var(--blue-mid); color: var(--blue-mid); background: var(--blue-light); }
 
 /* ── Milestones ── */
-.milestone-list { display: flex; flex-direction: column; gap: 6px; }
-.milestone-row { display: grid; grid-template-columns: 1fr 130px 26px; gap: 6px; align-items: center; }
+.milestone-list { display: flex; flex-direction: column; gap: 8px; }
+.milestone-card { border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; }
+.milestone-card-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; cursor: pointer; }
+.milestone-diamond { width: 12px; height: 12px; transform: rotate(45deg); border-radius: 2px; flex-shrink:0; }
+.milestone-card-body { display: none; padding: 8px 10px 10px; border-top: 1px solid var(--gray-100); }
+.milestone-card.open .milestone-card-body { display: block; }
+.milestone-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 8px; }
+.milestone-fields .full { grid-column: 1/-1; }
+.font-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.font-btn { font-family: "Open Sans",sans-serif; font-size: 11px; padding: 3px 8px; border: 1px solid var(--gray-200); border-radius: 4px; background: none; cursor: pointer; color: var(--gray-700); transition: all .12s; }
+.font-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+.font-btn:hover:not(.active) { background: var(--gray-100); }
 .btn-del-ms {
   width: 24px; height: 24px;
   border-radius: 50%;
@@ -240,7 +251,7 @@ textarea { resize: vertical; min-height: 56px; line-height: 1.5; font-size: 12px
 }
 .btn-del-ms:hover { background: var(--coral-light); color: var(--coral); border-color: #fcd4cc; }
 .btn-add-ms {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 12px;
   background: none;
   border: none;
@@ -280,7 +291,7 @@ textarea { resize: vertical; min-height: 56px; line-height: 1.5; font-size: 12px
   overflow: hidden;
 }
 .gantt-scroll { overflow-x: auto; }
-svg text { font-family: 'DM Sans', sans-serif; }
+svg text { font-family: 'Open Sans', sans-serif; }
 
 /* ── Legend ── */
 .legend {
@@ -359,7 +370,7 @@ svg text { font-family: 'DM Sans', sans-serif; }
 }
 .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .btn-modal {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
   padding: 8px 18px;
@@ -441,7 +452,10 @@ svg text { font-family: 'DM Sans', sans-serif; }
       <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:#1a5faa"></div> Phase active</div>
         <div class="legend-item"><div class="legend-dot" style="background:#c94428;border-radius:50%"></div> Jalon</div>
-        <div class="legend-item"><div style="width:18px;height:2px;background:#b06a00;border-radius:1px;border-top:1px dashed #b06a00"></div>&nbsp; Aujourd'hui</div>
+        <div class="legend-item" id="legendToday" style="cursor:pointer;" onclick="toggleToday()" title="Cliquer pour afficher/masquer">
+          <div style="width:18px;height:2px;background:#b06a00;border-radius:1px;border-top:1px dashed #b06a00;transition:opacity .2s" id="legendTodayLine"></div>
+          <span id="legendTodayLabel" style="transition:opacity .2s">&nbsp; Aujourd'hui</span>
+        </div>
       </div>
     </div>
   </main>
@@ -505,8 +519,8 @@ let phases = [
   { name:"Phase 5 – Accompagnement jusqu'à la conclusion",  start:"2026-07-15", end:"2026-11-30", deliverables:"Format OSAF\nFiche opération\nPrésentation synthétique", open:false },
 ];
 let milestones = [
-  { name:"Lancement du projet", date:"2026-04-01" },
-  { name:"Validation site lauréat (COMEX)", date:"2026-07-15" },
+  { name:"Lancement du projet", date:"2026-04-01", color:"#c94428", bold:false, underline:false, size:10 },
+  { name:"Validation site lauréat (COMEX)", date:"2026-07-15", color:"#c94428", bold:false, underline:false, size:10 },
 ];
 
 function parseD(s){ return new Date(s+'T00:00:00'); }
@@ -539,8 +553,22 @@ function renderSidebar(){
           <div class="field-group full"><label>Livrables</label><textarea oninput="phases[${i}].deliverables=this.value;renderGantt()">${p.deliverables||''}</textarea></div>
           <div class="field-group full" style="flex-direction:row;align-items:center;gap:10px;">
             <label style="margin:0;white-space:nowrap;">Couleur</label>
-            <input type="color" value="${p.color||PHASE_COLORS[i%PHASE_COLORS.length]}" onchange="phases[${i}].color=this.value;renderSidebar();renderGantt()" style="width:36px;height:30px;padding:2px;border-radius:6px;border:1px solid #dde1e9;cursor:pointer;background:none;">
-            <button onclick="delete phases[${i}].color;renderSidebar();renderGantt()" style="font-size:11px;background:none;border:1px solid #dde1e9;border-radius:6px;padding:4px 8px;cursor:pointer;color:#7a8498;">↺ Défaut</button>
+            <input type="color" value="${p.color||PHASE_COLORS[i%PHASE_COLORS.length]}" onchange="phases[${i}].color=this.value;renderSidebar();renderGantt()" style="width:32px;height:28px;padding:2px;border-radius:5px;border:1px solid #dde1e9;cursor:pointer;background:none;">
+            <button onclick="delete phases[${i}].color;renderSidebar();renderGantt()" style="font-size:11px;background:none;border:1px solid #dde1e9;border-radius:5px;padding:3px 7px;cursor:pointer;color:#7a8498;">↺ Défaut</button>
+          </div>
+          <div class="field-group full">
+            <label>Taille du texte dans la barre</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="range" min="8" max="16" step="1" value="${p.size||11}" oninput="phases[${i}].size=+this.value;renderGantt();this.nextElementSibling.textContent=this.value+'px'" style="flex:1;">
+              <span style="font-size:11px;color:#7a8498;min-width:28px;">${p.size||11}px</span>
+            </div>
+          </div>
+          <div class="field-group full">
+            <label>Style du texte</label>
+            <div class="font-controls">
+              <button class="font-btn${p.bold?' active':''}" onclick="phases[${i}].bold=!phases[${i}].bold;renderSidebar();renderGantt()"><b>G</b></button>
+              <button class="font-btn${p.underline?' active':''}" onclick="phases[${i}].underline=!phases[${i}].underline;renderSidebar();renderGantt()"><u>S</u></button>
+            </div>
           </div>
         </div>
         <button class="btn-del-phase" onclick="phases.splice(${i},1);renderSidebar();renderGantt()">Supprimer cette phase</button>
@@ -552,14 +580,46 @@ function renderSidebar(){
   const mlist = document.getElementById('milestoneList');
   mlist.innerHTML='';
   milestones.forEach((m,i)=>{
-    const row = document.createElement('div');
-    row.className='milestone-row';
-    row.innerHTML=`
-      <input type="text" value="${m.name}" oninput="milestones[${i}].name=this.value;renderGantt()" placeholder="Jalon…">
-      <input type="date" value="${m.date}" onchange="milestones[${i}].date=this.value;renderGantt()">
-      <button class="btn-del-ms" onclick="milestones.splice(${i},1);renderSidebar();renderGantt()">×</button>
+    const card = document.createElement('div');
+    const isOpen = m.open||false;
+    card.className='milestone-card'+(isOpen?' open':'');
+    const mcolor = m.color||'#c94428';
+    const msize = m.size||10;
+    card.innerHTML=`
+      <div class="milestone-card-header" onclick="milestones[${i}].open=!milestones[${i}].open;renderSidebar()">
+        <div class="milestone-diamond" style="background:${mcolor}"></div>
+        <div style="flex:1;font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${m.name||'Jalon'}</div>
+        <div style="font-size:10px;color:#7a8498;font-family:monospace;">${m.date||''}</div>
+        <div style="font-size:10px;color:#c4cad6;margin-left:4px;">▼</div>
+      </div>
+      <div class="milestone-card-body">
+        <div class="milestone-fields">
+          <div class="field-group full"><label>Nom</label><input type="text" value="${m.name}" oninput="milestones[${i}].name=this.value;renderGantt()" placeholder="Jalon…"></div>
+          <div class="field-group full"><label>Date</label><input type="date" value="${m.date}" onchange="milestones[${i}].date=this.value;renderGantt()"></div>
+          <div class="field-group full" style="flex-direction:row;align-items:center;gap:8px;">
+            <label style="margin:0;white-space:nowrap;">Couleur</label>
+            <input type="color" value="${mcolor}" onchange="milestones[${i}].color=this.value;renderSidebar();renderGantt()" style="width:32px;height:28px;padding:2px;border-radius:5px;border:1px solid #dde1e9;cursor:pointer;background:none;">
+            <button onclick="milestones[${i}].color='#c94428';renderSidebar();renderGantt()" style="font-size:11px;background:none;border:1px solid #dde1e9;border-radius:5px;padding:3px 7px;cursor:pointer;color:#7a8498;">↺</button>
+          </div>
+          <div class="field-group full">
+            <label>Taille de police</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="range" min="8" max="16" step="1" value="${msize}" oninput="milestones[${i}].size=+this.value;renderGantt();this.nextElementSibling.textContent=this.value+'px'" style="flex:1;">
+              <span style="font-size:11px;color:#7a8498;min-width:28px;">${msize}px</span>
+            </div>
+          </div>
+          <div class="field-group full">
+            <label>Style</label>
+            <div class="font-controls">
+              <button class="font-btn${m.bold?' active':''}" onclick="milestones[${i}].bold=!milestones[${i}].bold;renderSidebar();renderGantt()"><b>G</b></button>
+              <button class="font-btn${m.underline?' active':''}" onclick="milestones[${i}].underline=!milestones[${i}].underline;renderSidebar();renderGantt()"><u>S</u></button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-del-phase" onclick="milestones.splice(${i},1);renderSidebar();renderGantt()">Supprimer ce jalon</button>
+      </div>
     `;
-    mlist.appendChild(row);
+    mlist.appendChild(card);
   });
 }
 
@@ -573,7 +633,7 @@ function addPhase(){
   renderSidebar();renderGantt();
 }
 function addMilestone(){
-  milestones.push({name:'Nouveau jalon',date:document.getElementById('t0').value||'2026-04-01'});
+  milestones.push({name:'Nouveau jalon',date:document.getElementById('t0').value||'2026-04-01',color:'#c94428',bold:false,underline:false,size:10});
   renderSidebar();renderGantt();
 }
 
@@ -591,8 +651,8 @@ function renderGantt(){
 
   const allEnds=[...phases.map(p=>p.end?parseD(p.end):t0),...milestones.map(m=>m.date?parseD(m.date):t0)];
   const maxEnd=new Date(Math.max(...allEnds));
-  let totalMonths=Math.ceil(diffDays(t0,maxEnd)/30)+2;
-  totalMonths=Math.max(totalMonths,8);
+  let totalMonths=Math.ceil(diffDays(t0,maxEnd)/30)+1;
+  totalMonths=Math.max(totalMonths,6);
 
   const MONTH_W=90, LEFT=20, TOP=62, ROW_H=72, BAR_H=28, RADIUS=14;
   const W=LEFT+MONTH_W*totalMonths+200;
@@ -625,7 +685,7 @@ function renderGantt(){
 
   // today line
   const todayOff=diffDays(t0,new Date());
-  if(todayOff>0&&todayOff<totalMonths*30){
+  if(showToday&&todayOff>0&&todayOff<totalMonths*30){
     const tx=LEFT+(todayOff/30)*MONTH_W;
     s+=`<line x1="${tx}" y1="${TOP}" x2="${tx}" y2="${H}" stroke="#b06a00" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7"/>`;
     s+=`<rect x="${tx-18}" y="${TOP+2}" width="36" height="16" rx="8" fill="#b06a00"/>`;
@@ -665,17 +725,17 @@ function renderGantt(){
     // end dot
     s+=`<circle cx="${sx+bw}" cy="${by+BAR_H/2}" r="7" fill="#fff" stroke="${color}" stroke-width="2.5"/>`;
 
+    const pSize = p.size||11;
+    const pWeight = p.bold ? '700' : '600';
+    const pDecor = p.underline ? `text-decoration="underline"` : '';
     if(labelFitsInBar){
-      // Full name inside bar
-      s+=`<text x="${sx+16}" y="${by+BAR_H/2+4.5}" font-size="11.5" font-weight="600" fill="#fff">${p.name}</text>`;
+      s+=`<text x="${sx+16}" y="${by+BAR_H/2+4.5}" font-size="${pSize}" font-weight="${pWeight}" fill="#fff" ${pDecor}>${p.name}</text>`;
     } else if(labelFitsPartial){
-      // Name above the bar, full width available
       const clipId=`clip-phase-${i}`;
-      s+=`<defs><clipPath id="${clipId}"><rect x="${sx}" y="${by-20}" width="${W-sx}" height="20"/></clipPath></defs>`;
-      s+=`<text x="${sx+4}" y="${by-5}" font-size="11" font-weight="600" fill="${color}" clip-path="url(#${clipId})">${p.name}</text>`;
+      s+=`<defs><clipPath id="${clipId}"><rect x="${sx}" y="${by-22}" width="${W-sx}" height="22"/></clipPath></defs>`;
+      s+=`<text x="${sx+4}" y="${by-5}" font-size="${pSize}" font-weight="${pWeight}" fill="${color}" clip-path="url(#${clipId})" ${pDecor}>${p.name}</text>`;
     } else {
-      // Very short bar: name to the right of the bar
-      s+=`<text x="${sx+bw+14}" y="${by+BAR_H/2+4}" font-size="11" font-weight="600" fill="${color}">${p.name}</text>`;
+      s+=`<text x="${sx+bw+14}" y="${by+BAR_H/2+4}" font-size="${pSize}" font-weight="${pWeight}" fill="${color}" ${pDecor}>${p.name}</text>`;
     }
 
     // duration badge
@@ -704,15 +764,19 @@ function renderGantt(){
     const md=parseD(m.date);
     const mx=LEFT+(diffDays(t0,md)/30)*MONTH_W;
     const my=mStartY+i*40;
-    // vertical tick
-    s+=`<line x1="${mx}" y1="${TOP}" x2="${mx}" y2="${my+12}" stroke="#c94428" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
-    // diamond
-    s+=`<polygon points="${mx},${my} ${mx+8},${my+10} ${mx},${my+20} ${mx-8},${my+10}" fill="#c94428"/>`;
-    // label bg
-    const lw=m.name.length*6.5+20;
-    s+=`<rect x="${mx+14}" y="${my+2}" width="${lw}" height="18" rx="9" fill="#fde8e4"/>`;
-    s+=`<text x="${mx+14+lw/2}" y="${my+14}" text-anchor="middle" font-size="10" font-weight="600" fill="#c94428">${m.name}</text>`;
-    s+=`<text x="${mx+14+lw+6}" y="${my+14}" font-size="9.5" fill="#7a8498">${fmtDate(m.date)}</text>`;
+    const mcolor2 = m.color||'#c94428';
+    const msize2 = m.size||10;
+    const mweight = m.bold ? '700' : '600';
+    const mdecor = m.underline ? 'text-decoration="underline"' : '';
+    // lighten the milestone color for pill bg
+    const mlightR=parseInt(mcolor2.slice(1,3),16), mlightG=parseInt(mcolor2.slice(3,5),16), mlightB=parseInt(mcolor2.slice(5,7),16);
+    const mlightBg=`rgb(${Math.round(mlightR+(255-mlightR)*0.82)},${Math.round(mlightG+(255-mlightG)*0.82)},${Math.round(mlightB+(255-mlightB)*0.82)})`;
+    const lw=m.name.length*(msize2*0.62)+20;
+    s+=`<line x1="${mx}" y1="${TOP}" x2="${mx}" y2="${my+12}" stroke="${mcolor2}" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
+    s+=`<polygon points="${mx},${my} ${mx+8},${my+10} ${mx},${my+20} ${mx-8},${my+10}" fill="${mcolor2}"/>`;
+    s+=`<rect x="${mx+14}" y="${my+2}" width="${lw}" height="${msize2+8}" rx="${(msize2+8)/2}" fill="${mlightBg}"/>`;
+    s+=`<text x="${mx+14+lw/2}" y="${my+msize2+4}" text-anchor="middle" font-size="${msize2}" font-weight="${mweight}" fill="${mcolor2}" ${mdecor}>${m.name}</text>`;
+    s+=`<text x="${mx+14+lw+6}" y="${my+msize2+4}" font-size="${Math.max(8,msize2-1)}" fill="#7a8498">${fmtDate(m.date)}</text>`;
   });
 
   s+=`</svg>`;
@@ -848,6 +912,17 @@ function svgX2(svg, e){
   const rect=svg.getBoundingClientRect();
   const scaleX=svg.viewBox.baseVal.width/rect.width;
   return (e.clientX-rect.left)*scaleX;
+}
+
+
+/* ── Today line toggle ── */
+let showToday = true;
+function toggleToday(){
+  showToday=!showToday;
+  const opacity = showToday ? '1' : '0.3';
+  document.getElementById('legendTodayLine').style.opacity=opacity;
+  document.getElementById('legendTodayLabel').style.opacity=opacity;
+  renderGantt();
 }
 
 /* ── Persist in URL ── */
