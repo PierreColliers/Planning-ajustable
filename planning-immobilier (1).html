@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Immobilier — Éditeur de phases</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f2544;
+  --blue: #1a5faa;
+  --blue-mid: #2171c7;
+  --blue-light: #dceeff;
+  --teal: #0d8f75;
+  --teal-light: #d6f5ee;
+  --violet: #5c44c9;
+  --violet-light: #eceafe;
+  --coral: #c94428;
+  --coral-light: #fde8e4;
+  --amber: #b06a00;
+  --amber-light: #fef0d6;
+  --green: #2d7a2d;
+  --green-light: #e2f5e2;
+  --gray-50: #f7f8fa;
+  --gray-100: #eef0f4;
+  --gray-200: #dde1e9;
+  --gray-300: #c4cad6;
+  --gray-500: #7a8498;
+  --gray-700: #3d4559;
+  --gray-900: #181e2c;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 12px rgba(15,37,68,0.08);
+  --shadow-lg: 0 8px 32px rgba(15,37,68,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  background: var(--navy);
+  padding: 0 2rem;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.header-logo {
+  width: 32px; height: 32px;
+  background: var(--blue-mid);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.header-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 1px;
+}
+.header-actions { display: flex; gap: 8px; }
+.btn-header {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-header:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-header.primary {
+  background: var(--blue-mid);
+  border-color: var(--blue-mid);
+  color: #fff;
+}
+.btn-header.primary:hover { background: #2a82e0; }
+
+/* ── Layout ── */
+.app { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 58px); }
+
+/* ── Sidebar ── */
+.sidebar {
+  background: #fff;
+  border-right: 1px solid var(--gray-200);
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 58px);
+  position: sticky;
+  top: 58px;
+}
+.sidebar-section { margin-bottom: 1.5rem; }
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  margin-bottom: 10px;
+}
+.field-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.field-group label { font-size: 12px; color: var(--gray-700); font-weight: 500; }
+input[type=date], input[type=text], textarea, select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 8px 10px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  color: var(--gray-900);
+  width: 100%;
+  transition: border-color .15s;
+  outline: none;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--blue-mid); background: #fff; }
+textarea { resize: vertical; min-height: 56px; line-height: 1.5; font-size: 12px; }
+
+/* ── Phase cards in sidebar ── */
+.phase-list { display: flex; flex-direction: column; gap: 8px; }
+.phase-card {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: box-shadow .15s;
+}
+.phase-card:hover { box-shadow: var(--shadow); }
+.phase-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.phase-number {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+.phase-card-name {
+  font-size: 12px;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--gray-900);
+}
+.phase-card-dur {
+  font-size: 11px;
+  color: var(--gray-500);
+  font-family: 'DM Mono', monospace;
+  flex-shrink: 0;
+}
+.phase-chevron {
+  font-size: 10px;
+  color: var(--gray-300);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.phase-card.open .phase-chevron { transform: rotate(180deg); }
+.phase-card-body {
+  display: none;
+  padding: 0 12px 12px;
+  border-top: 1px solid var(--gray-100);
+}
+.phase-card.open .phase-card-body { display: block; padding-top: 10px; }
+.phase-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.phase-fields .full { grid-column: 1 / -1; }
+.btn-del-phase {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--coral);
+  background: none;
+  border: 1px solid #fcd4cc;
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all .15s;
+}
+.btn-del-phase:hover { background: var(--coral-light); }
+
+.btn-add-phase {
+  font-family: 'DM Sans', sans-serif;
+  width: 100%;
+  padding: 9px;
+  background: none;
+  border: 1px dashed var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all .15s;
+  margin-top: 8px;
+}
+.btn-add-phase:hover { border-color: var(--blue-mid); color: var(--blue-mid); background: var(--blue-light); }
+
+/* ── Milestones ── */
+.milestone-list { display: flex; flex-direction: column; gap: 6px; }
+.milestone-row { display: grid; grid-template-columns: 1fr 130px 26px; gap: 6px; align-items: center; }
+.btn-del-ms {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--gray-200);
+  background: none;
+  color: var(--gray-500);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.btn-del-ms:hover { background: var(--coral-light); color: var(--coral); border-color: #fcd4cc; }
+.btn-add-ms {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  background: none;
+  border: none;
+  color: var(--blue-mid);
+  cursor: pointer;
+  padding: 4px 0;
+}
+.btn-add-ms:hover { text-decoration: underline; }
+
+/* ── Main gantt panel ── */
+.main {
+  padding: 2rem;
+  overflow: hidden;
+}
+.gantt-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+.gantt-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+}
+.gantt-subtitle {
+  font-size: 13px;
+  color: var(--gray-500);
+  margin-top: 2px;
+}
+.gantt-container {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.gantt-scroll { overflow-x: auto; }
+svg text { font-family: 'DM Sans', sans-serif; }
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--gray-100);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--gray-500);
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+.legend-line {
+  width: 18px; height: 2px;
+  background: var(--amber);
+  border-radius: 1px;
+}
+
+/* ── Export modal ── */
+.modal-bg {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(15,37,68,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 480px;
+  max-width: 95vw;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+.modal h3 { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.modal p { font-size: 13px; color: var(--gray-500); line-height: 1.6; margin-bottom: 1.5rem; }
+.modal-steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
+.modal-step {
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.step-num {
+  width: 24px; height: 24px;
+  background: var(--navy);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-text { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+.step-text strong { color: var(--navy); font-weight: 600; }
+.step-text a { color: var(--blue-mid); text-decoration: none; }
+.step-text a:hover { text-decoration: underline; }
+.step-code {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  color: var(--gray-700);
+  margin-top: 6px;
+  display: block;
+  word-break: break-all;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-modal {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-modal:hover { background: var(--gray-50); }
+.btn-modal.primary {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.btn-modal.primary:hover { background: #162f5a; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="header-logo">🏢</div>
+    <div>
+      <div class="header-title">Planning Immobilier</div>
+      <div class="header-sub">Éditeur de phases collaboratif</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-header" onclick="saveToURL()">💾 Sauvegarder le lien</button>
+    <button class="btn-header" onclick="exportSVG()">⬇ Exporter SVG</button>
+    <button class="btn-header primary" onclick="document.getElementById('shareModal').classList.add('open')">🔗 Héberger &amp; Partager</button>
+  </div>
+</header>
+
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Projet</div>
+      <div class="field-group">
+        <label>Nom du projet</label>
+        <input type="text" id="projectName" value="Recherche de nouveaux locaux" oninput="renderGantt()">
+      </div>
+      <div class="field-group">
+        <label>Client / Mandant</label>
+        <input type="text" id="clientName" value="1001 Vies Habitat" oninput="renderGantt()">
+      </div>
+      <div class="field-group">
+        <label>Date T0 (démarrage)</label>
+        <input type="date" id="t0" value="2026-04-01" onchange="renderGantt()">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Phases</div>
+      <div class="phase-list" id="phaseList"></div>
+      <button class="btn-add-phase" onclick="addPhase()">+ Ajouter une phase</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Jalons</div>
+      <div class="milestone-list" id="milestoneList"></div>
+      <button class="btn-add-ms" onclick="addMilestone()">+ Ajouter un jalon</button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="gantt-header-row">
+      <div>
+        <div class="gantt-title" id="ganttTitleDisplay">Planning de projet immobilier</div>
+        <div class="gantt-subtitle" id="ganttSubDisplay">1001 Vies Habitat · Démarrage : avril 2026</div>
+      </div>
+    </div>
+    <div class="gantt-container">
+      <div class="gantt-scroll" id="ganttScroll"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1a5faa"></div> Phase active</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c94428;border-radius:50%"></div> Jalon</div>
+        <div class="legend-item"><div style="width:18px;height:2px;background:#b06a00;border-radius:1px;border-top:1px dashed #b06a00"></div>&nbsp; Aujourd'hui</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-bg" id="shareModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <h3>🌐 Héberger &amp; partager avec votre équipe</h3>
+    <p>Publiez ce fichier HTML gratuitement en 3 étapes via GitHub Pages — aucune compétence technique requise.</p>
+    <div class="modal-steps">
+      <div class="modal-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Téléchargez le fichier HTML</strong> en cliquant sur « Exporter SVG » puis utilisez ce fichier. Ou téléchargez directement cette page avec Ctrl+S / Cmd+S.<br>
+          <span class="step-code">planning-immobilier.html</span>
+        </div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Créez un compte gratuit</strong> sur <a href="https://github.com" target="_blank">github.com</a>, puis créez un nouveau dépôt public. Déposez-y votre fichier HTML en le renommant <code>index.html</code>.
+        </div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Activez GitHub Pages</strong> : dans les Settings du dépôt → Pages → Source : <em>main / root</em>. Votre lien sera :
+          <span class="step-code">https://votre-nom.github.io/planning-immobilier/</span>
+        </div>
+      </div>
+      <div class="modal-step">
+        <div class="step-num">✓</div>
+        <div class="step-text">
+          <strong>Astuce :</strong> utilisez le bouton <em>« Sauvegarder le lien »</em> pour encoder votre planning dans l'URL — partagez ce lien et vos collègues verront exactement votre version.
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal" onclick="document.getElementById('shareModal').classList.remove('open')">Fermer</button>
+      <button class="btn-modal primary" onclick="downloadHTML()">⬇ Télécharger le fichier HTML</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PHASE_COLORS = ["#1a5faa","#0d8f75","#5c44c9","#c94428","#2d7a2d","#993556","#b06a00"];
+const PHASE_LIGHTS = ["#dceeff","#d6f5ee","#eceafe","#fde8e4","#e2f5e2","#fbeaf0","#fef0d6"];
+
+let phases = [
+  { name:"Phase 1 – Analyse du besoin et cadrage",          start:"2026-04-01", end:"2026-04-15", deliverables:"Expression de besoins\nPréprogramme\nÉtude des temps de trajet", open:false },
+  { name:"Phase 2 – Recherche et identification des biens", start:"2026-04-15", end:"2026-05-15", deliverables:"Long-list de sites\nFiches immobilières\nAnalyse multicritères", open:false },
+  { name:"Phase 3 – Analyse et aide à la décision",         start:"2026-05-01", end:"2026-06-15", deliverables:"Short-list\nModélisation financière\nRapport de synthèse", open:false },
+  { name:"Phase 4 – Accompagnement à la négociation",       start:"2026-06-01", end:"2026-08-01", deliverables:"Lettres d'intérêt\nProtocole d'accord", open:false },
+  { name:"Phase 5 – Accompagnement jusqu'à la conclusion",  start:"2026-07-15", end:"2026-11-30", deliverables:"Format OSAF\nFiche opération\nPrésentation synthétique", open:false },
+];
+let milestones = [
+  { name:"Lancement du projet", date:"2026-04-01" },
+  { name:"Validation site lauréat (COMEX)", date:"2026-07-15" },
+];
+
+function parseD(s){ return new Date(s+'T00:00:00'); }
+function toISO(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function diffDays(a,b){ return Math.round((b-a)/86400000); }
+function fmtDate(s){ if(!s) return '—'; const d=parseD(s); return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}); }
+function diffLabel(s,e){ if(!s||!e) return ''; const d=diffDays(parseD(s),parseD(e)); if(d<0) return '⚠'; if(d<14) return d+'j'; if(d<60) return Math.round(d/7)+'sem'; return Math.round(d/30)+'mois'; }
+
+/* ── Sidebar render ── */
+function renderSidebar(){
+  const list = document.getElementById('phaseList');
+  list.innerHTML='';
+  phases.forEach((p,i)=>{
+    const card = document.createElement('div');
+    card.className = 'phase-card' + (p.open?' open':'');
+    const color = PHASE_COLORS[i%PHASE_COLORS.length];
+    card.innerHTML = `
+      <div class="phase-card-header" onclick="togglePhase(${i})">
+        <div class="phase-number" style="background:${color}">${i+1}</div>
+        <div class="phase-card-name">${p.name||'Sans nom'}</div>
+        <div class="phase-card-dur">${diffLabel(p.start,p.end)}</div>
+        <div class="phase-chevron">▼</div>
+      </div>
+      <div class="phase-card-body">
+        <div class="phase-fields">
+          <div class="field-group full"><label>Nom</label><input type="text" value="${p.name}" oninput="phases[${i}].name=this.value;renderGantt()"></div>
+          <div class="field-group"><label>Début</label><input type="date" value="${p.start}" onchange="phases[${i}].start=this.value;renderSidebar();renderGantt()"></div>
+          <div class="field-group"><label>Fin</label><input type="date" value="${p.end}" onchange="phases[${i}].end=this.value;renderSidebar();renderGantt()"></div>
+          <div class="field-group full"><label>Livrables</label><textarea oninput="phases[${i}].deliverables=this.value;renderGantt()">${p.deliverables||''}</textarea></div>
+        </div>
+        <button class="btn-del-phase" onclick="phases.splice(${i},1);renderSidebar();renderGantt()">Supprimer cette phase</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  const mlist = document.getElementById('milestoneList');
+  mlist.innerHTML='';
+  milestones.forEach((m,i)=>{
+    const row = document.createElement('div');
+    row.className='milestone-row';
+    row.innerHTML=`
+      <input type="text" value="${m.name}" oninput="milestones[${i}].name=this.value;renderGantt()" placeholder="Jalon…">
+      <input type="date" value="${m.date}" onchange="milestones[${i}].date=this.value;renderGantt()">
+      <button class="btn-del-ms" onclick="milestones.splice(${i},1);renderSidebar();renderGantt()">×</button>
+    `;
+    mlist.appendChild(row);
+  });
+}
+
+function togglePhase(i){ phases[i].open=!phases[i].open; renderSidebar(); }
+
+function addPhase(){
+  const last=phases[phases.length-1];
+  const ns=last?last.end:document.getElementById('t0').value||'2026-04-01';
+  const ne=toISO(addDays(parseD(ns),30));
+  phases.push({name:`Phase ${phases.length+1} – Nouvelle phase`,start:ns,end:ne,deliverables:'',open:true});
+  renderSidebar();renderGantt();
+}
+function addMilestone(){
+  milestones.push({name:'Nouveau jalon',date:document.getElementById('t0').value||'2026-04-01'});
+  renderSidebar();renderGantt();
+}
+
+/* ── Gantt render ── */
+function renderGantt(){
+  const t0str = document.getElementById('t0').value||'2026-04-01';
+  const t0 = parseD(t0str);
+  const projectName = document.getElementById('projectName').value||'Planning de projet';
+  const clientName = document.getElementById('clientName').value||'';
+
+  document.getElementById('ganttTitleDisplay').textContent = projectName;
+  document.getElementById('ganttSubDisplay').textContent = (clientName?clientName+' · ':'')+'Démarrage : '+t0.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+
+  if(!phases.length){document.getElementById('ganttScroll').innerHTML='<div style="padding:3rem;text-align:center;color:#7a8498;font-size:14px;">Aucune phase définie</div>';return;}
+
+  const allEnds=[...phases.map(p=>p.end?parseD(p.end):t0),...milestones.map(m=>m.date?parseD(m.date):t0)];
+  const maxEnd=new Date(Math.max(...allEnds));
+  let totalMonths=Math.ceil(diffDays(t0,maxEnd)/30)+2;
+  totalMonths=Math.max(totalMonths,8);
+
+  const MONTH_W=90, LEFT=20, TOP=62, ROW_H=62, BAR_H=28, RADIUS=14;
+  const W=LEFT+MONTH_W*totalMonths+200;
+  const H=TOP+phases.length*ROW_H+milestones.length*44+24;
+
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+  s+=`<defs><clipPath id="barClip"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath></defs>`;
+
+  // bg stripes
+  for(let mi=0;mi<totalMonths;mi++){
+    const x=LEFT+mi*MONTH_W;
+    s+=`<rect x="${x}" y="0" width="${MONTH_W}" height="${H}" fill="${mi%2===0?'#f7f8fa':'#ffffff'}"/>`;
+  }
+
+  // header bg
+  s+=`<rect x="0" y="0" width="${W}" height="${TOP}" fill="#0f2544"/>`;
+
+  // month labels + vertical lines
+  for(let mi=0;mi<totalMonths;mi++){
+    const x=LEFT+mi*MONTH_W;
+    const colDate=new Date(t0.getFullYear(), t0.getMonth()+mi, 1);
+    const monthName=colDate.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
+    const yearShort=colDate.toLocaleDateString('fr-FR',{year:'2-digit'});
+    const topLine=monthName.charAt(0).toUpperCase()+monthName.slice(1)+' '+yearShort;
+    const bottomLine=mi===0?'T0':`T+${mi}`;
+    s+=`<text x="${x+MONTH_W/2}" y="${TOP/2-4}" text-anchor="middle" font-size="11.5" font-weight="600" fill="#ffffff">${topLine}</text>`;
+    s+=`<text x="${x+MONTH_W/2}" y="${TOP/2+11}" text-anchor="middle" font-size="9" font-weight="400" fill="rgba(255,255,255,0.45)">${bottomLine}</text>`;
+    if(mi>0) s+=`<line x1="${x}" y1="${TOP}" x2="${x}" y2="${H}" stroke="#e8eaee" stroke-width="0.75"/>`;
+  }
+
+  // today line
+  const todayOff=diffDays(t0,new Date());
+  if(todayOff>0&&todayOff<totalMonths*30){
+    const tx=LEFT+(todayOff/30)*MONTH_W;
+    s+=`<line x1="${tx}" y1="${TOP}" x2="${tx}" y2="${H}" stroke="#b06a00" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.7"/>`;
+    s+=`<rect x="${tx-18}" y="${TOP+2}" width="36" height="16" rx="8" fill="#b06a00"/>`;
+    s+=`<text x="${tx}" y="${TOP+13}" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">Auj.</text>`;
+  }
+
+  // phases
+  phases.forEach((p,i)=>{
+    if(!p.start||!p.end) return;
+    const ps=parseD(p.start), pe=parseD(p.end);
+    const sx=LEFT+(diffDays(t0,ps)/30)*MONTH_W;
+    const ex=LEFT+(diffDays(t0,pe)/30)*MONTH_W;
+    const bw=Math.max(ex-sx,80);
+    const y=TOP+i*ROW_H;
+    const by=y+(ROW_H-BAR_H)/2;
+    const color=PHASE_COLORS[i%PHASE_COLORS.length];
+    const lcolor=PHASE_LIGHTS[i%PHASE_LIGHTS.length];
+    const days=diffDays(ps,pe);
+    const dur=days<14?days+'j':days<60?Math.round(days/7)+' sem.':Math.round(days/30)+' mois';
+
+    // row bg
+    s+=`<rect x="0" y="${y}" width="${W}" height="${ROW_H}" fill="transparent"/>`;
+
+    // bar glow
+    s+=`<rect x="${sx+2}" y="${by+3}" width="${bw}" height="${BAR_H}" rx="${RADIUS}" fill="${color}" opacity="0.15"/>`;
+    // bar
+    s+=`<rect x="${sx}" y="${by}" width="${bw}" height="${BAR_H}" rx="${RADIUS}" fill="${color}"/>`;
+
+    // Phase label inside bar
+    const shortName = p.name.length>35?p.name.slice(0,34)+'…':p.name;
+    s+=`<text x="${sx+16}" y="${by+BAR_H/2+4.5}" font-size="11.5" font-weight="600" fill="#fff">${shortName}</text>`;
+
+    // start dot
+    s+=`<circle cx="${sx}" cy="${by+BAR_H/2}" r="5" fill="#fff" stroke="${color}" stroke-width="2"/>`;
+    // end dot
+    s+=`<circle cx="${sx+bw}" cy="${by+BAR_H/2}" r="7" fill="#fff" stroke="${color}" stroke-width="2.5"/>`;
+    // duration badge
+    s+=`<rect x="${sx+bw+10}" y="${by+BAR_H/2-9}" width="${dur.length*7+10}" height="18" rx="9" fill="${lcolor}"/>`;
+    s+=`<text x="${sx+bw+15+dur.length*3.5}" y="${by+BAR_H/2+4}" text-anchor="middle" font-size="10" font-weight="600" fill="${color}">${dur}</text>`;
+
+    // deliverables
+    const delivs=(p.deliverables||'').split('\n').filter(l=>l.trim()).slice(0,3);
+    const delivX=sx+bw+dur.length*7+30;
+    delivs.forEach((line,li)=>{
+      s+=`<text x="${delivX}" y="${by+4+li*14+12}" font-size="10" fill="#5a6478">▪ ${line}</text>`;
+    });
+
+    // separator
+    if(i<phases.length-1) s+=`<line x1="${LEFT}" y1="${y+ROW_H}" x2="${W}" y2="${y+ROW_H}" stroke="#eef0f4" stroke-width="1"/>`;
+  });
+
+  // milestones
+  const mStartY=TOP+phases.length*ROW_H+8;
+  milestones.forEach((m,i)=>{
+    if(!m.date) return;
+    const md=parseD(m.date);
+    const mx=LEFT+(diffDays(t0,md)/30)*MONTH_W;
+    const my=mStartY+i*40;
+    // vertical tick
+    s+=`<line x1="${mx}" y1="${TOP}" x2="${mx}" y2="${my+12}" stroke="#c94428" stroke-width="1" stroke-dasharray="3,3" opacity="0.5"/>`;
+    // diamond
+    s+=`<polygon points="${mx},${my} ${mx+8},${my+10} ${mx},${my+20} ${mx-8},${my+10}" fill="#c94428"/>`;
+    // label bg
+    const lw=m.name.length*6.5+20;
+    s+=`<rect x="${mx+14}" y="${my+2}" width="${lw}" height="18" rx="9" fill="#fde8e4"/>`;
+    s+=`<text x="${mx+14+lw/2}" y="${my+14}" text-anchor="middle" font-size="10" font-weight="600" fill="#c94428">${m.name}</text>`;
+    s+=`<text x="${mx+14+lw+6}" y="${my+14}" font-size="9.5" fill="#7a8498">${fmtDate(m.date)}</text>`;
+  });
+
+  s+=`</svg>`;
+  document.getElementById('ganttScroll').innerHTML=s;
+}
+
+/* ── Persist in URL ── */
+function saveToURL(){
+  const state={phases,milestones,t0:document.getElementById('t0').value,project:document.getElementById('projectName').value,client:document.getElementById('clientName').value};
+  const enc=btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  const url=window.location.origin+window.location.pathname+'?d='+enc;
+  navigator.clipboard.writeText(url).then(()=>{
+    alert('✅ Lien copié dans le presse-papiers !\n\nPartagez-le à votre équipe — ils verront exactement ce planning.');
+  }).catch(()=>{
+    prompt('Copiez ce lien :', url);
+  });
+}
+
+function loadFromURL(){
+  const params=new URLSearchParams(window.location.search);
+  const d=params.get('d');
+  if(!d) return;
+  try{
+    const state=JSON.parse(decodeURIComponent(escape(atob(d))));
+    if(state.phases) phases=state.phases;
+    if(state.milestones) milestones=state.milestones;
+    if(state.t0) document.getElementById('t0').value=state.t0;
+    if(state.project) document.getElementById('projectName').value=state.project;
+    if(state.client) document.getElementById('clientName').value=state.client;
+  }catch(e){ console.warn('Could not load state from URL'); }
+}
+
+/* ── Export SVG ── */
+function exportSVG(){
+  const svg=document.getElementById('ganttScroll').querySelector('svg');
+  if(!svg){alert('Aucun planning à exporter.');return;}
+  const blob=new Blob(['<?xml version="1.0" encoding="UTF-8"?>'+svg.outerHTML],{type:'image/svg+xml'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='planning-immobilier.svg'; a.click();
+}
+
+/* ── Download HTML ── */
+function downloadHTML(){
+  const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='planning-immobilier.html'; a.click();
+}
+
+// Init
+loadFromURL();
+renderSidebar();
+renderGantt();
+</script>
+</body>
+</html>
