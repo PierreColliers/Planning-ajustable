@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Immobilier</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #0f2544;
+  --blue:   #1a5faa;
+  --blue2:  #2171c7;
+  --bluel:  #dceeff;
+  --coral:  #c94428;
+  --corall: #fde8e4;
+  --amber:  #b06a00;
+  --g50:    #f7f8fa;
+  --g100:   #eef0f4;
+  --g200:   #dde1e9;
+  --g300:   #c4cad6;
+  --g500:   #7a8498;
+  --g700:   #3d4559;
+  --g900:   #181e2c;
+  --r:      8px;
+  --rsm:    5px;
+  --sh:     0 2px 10px rgba(15,37,68,.08);
+  --shlg:   0 8px 28px rgba(15,37,68,.14);
+}
+
+body { font-family:'Open Sans',sans-serif; font-size:13px; background:var(--g50); color:var(--g900); min-height:100vh; }
+
+/* ── HEADER ── */
+header {
+  background:var(--navy); height:56px; padding:0 1.5rem;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 14px rgba(0,0,0,.2);
+}
+.hbrand { display:flex; align-items:center; gap:10px; }
+.hlogo { width:30px; height:30px; background:var(--blue2); border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:15px; }
+.htitle { font-size:14px; font-weight:700; color:#fff; }
+.hsub   { font-size:11px; color:rgba(255,255,255,.4); }
+.hbtns  { display:flex; gap:6px; }
+.hbtn {
+  font-family:'Open Sans',sans-serif; font-size:12px; font-weight:600;
+  padding:6px 14px; border-radius:var(--rsm);
+  border:1px solid rgba(255,255,255,.2); background:transparent;
+  color:rgba(255,255,255,.75); cursor:pointer; transition:all .15s;
+}
+.hbtn:hover { background:rgba(255,255,255,.12); color:#fff; }
+.hbtn.pri { background:var(--blue2); border-color:var(--blue2); color:#fff; }
+.hbtn.pri:hover { background:#2a82e0; }
+
+/* ── LAYOUT ── */
+.app { display:grid; grid-template-columns:340px 1fr; min-height:calc(100vh - 56px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background:#fff; border-right:1px solid var(--g200);
+  padding:1.25rem; overflow-y:auto;
+  max-height:calc(100vh - 56px); position:sticky; top:56px;
+}
+.slabel {
+  font-size:10px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--g500); margin-bottom:8px;
+}
+.ssec { margin-bottom:1.4rem; }
+
+/* field */
+.fg { display:flex; flex-direction:column; gap:3px; margin-bottom:8px; }
+.fg label { font-size:11px; font-weight:600; color:var(--g700); }
+.fg input[type=text], .fg input[type=date], .fg textarea, .fg select {
+  font-family:'Open Sans',sans-serif; font-size:12px;
+  padding:6px 9px; border:1px solid var(--g200); border-radius:var(--rsm);
+  background:var(--g50); color:var(--g900); outline:none; width:100%;
+  transition:border-color .12s;
+}
+.fg input:focus, .fg textarea:focus { border-color:var(--blue2); background:#fff; }
+.fg textarea { resize:vertical; min-height:52px; line-height:1.45; }
+.fg2 { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.fg2 .full { grid-column:1/-1; }
+
+/* card (shared by phases + milestones) */
+.card {
+  border:1px solid var(--g200); border-radius:var(--r);
+  overflow:hidden; margin-bottom:7px; transition:box-shadow .12s;
+}
+.card:hover { box-shadow:var(--sh); }
+.card-hdr {
+  display:flex; align-items:center; gap:9px;
+  padding:9px 11px; cursor:pointer; user-select:none;
+}
+.card-badge {
+  width:20px; height:20px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#fff; flex-shrink:0;
+}
+.card-diamond {
+  width:12px; height:12px; transform:rotate(45deg);
+  border-radius:2px; flex-shrink:0;
+}
+.card-name {
+  flex:1; font-size:12px; font-weight:600;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.card-meta { font-size:10px; color:var(--g500); font-family:monospace; flex-shrink:0; }
+.card-chev { font-size:9px; color:var(--g300); transition:transform .18s; flex-shrink:0; }
+.card.open .card-chev { transform:rotate(180deg); }
+.card-body { display:none; padding:0 11px 11px; border-top:1px solid var(--g100); }
+.card.open .card-body { display:block; padding-top:9px; }
+
+/* font controls */
+.fcontrols { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
+.fbtn {
+  font-family:'Open Sans',sans-serif; font-size:11px;
+  padding:3px 9px; border:1px solid var(--g200); border-radius:4px;
+  background:none; cursor:pointer; color:var(--g700); transition:all .12s;
+}
+.fbtn:hover { background:var(--g100); }
+.fbtn.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+/* range row */
+.range-row { display:flex; align-items:center; gap:8px; }
+.range-row input[type=range] { flex:1; }
+.range-val { font-size:11px; color:var(--g500); min-width:26px; font-family:monospace; }
+
+/* color row */
+.color-row { display:flex; align-items:center; gap:8px; }
+.color-row label { font-size:11px; font-weight:600; color:var(--g700); white-space:nowrap; }
+.color-row input[type=color] {
+  width:32px; height:28px; padding:2px; border-radius:var(--rsm);
+  border:1px solid var(--g200); cursor:pointer; background:none;
+}
+.color-row .resetbtn {
+  font-family:'Open Sans',sans-serif; font-size:11px;
+  background:none; border:1px solid var(--g200); border-radius:var(--rsm);
+  padding:3px 8px; cursor:pointer; color:var(--g500);
+}
+.color-row .resetbtn:hover { background:var(--g100); }
+
+/* add / del buttons */
+.addbtn {
+  font-family:'Open Sans',sans-serif; width:100%; padding:8px;
+  background:none; border:1px dashed var(--g300); border-radius:var(--r);
+  font-size:12px; color:var(--g500); cursor:pointer; transition:all .15s;
+  margin-top:2px;
+}
+.addbtn:hover { border-color:var(--blue2); color:var(--blue2); background:var(--bluel); }
+.delbtn {
+  font-family:'Open Sans',sans-serif; font-size:11px; color:var(--coral);
+  background:none; border:1px solid #fcd4cc; border-radius:var(--rsm);
+  padding:4px 10px; cursor:pointer; margin-top:7px; transition:all .15s;
+}
+.delbtn:hover { background:var(--corall); }
+
+/* ── MAIN ── */
+.main { padding:1.75rem; overflow:hidden; }
+.gtop { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; }
+.gtitle { font-size:17px; font-weight:700; color:var(--navy); letter-spacing:-.02em; }
+.gsub   { font-size:12px; color:var(--g500); margin-top:2px; }
+
+.gbox {
+  background:#fff; border-radius:12px;
+  border:1px solid var(--g200); box-shadow:var(--sh); overflow:hidden;
+}
+.gscroll { overflow-x:auto; }
+.glegend {
+  display:flex; flex-wrap:wrap; gap:12px;
+  padding:10px 18px; border-top:1px solid var(--g100);
+}
+.gli { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--g500); cursor:pointer; user-select:none; }
+.gli:hover { color:var(--g900); }
+.gli.off { opacity:.35; }
+
+/* ── MODAL ── */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:rgba(15,37,68,.45); z-index:200;
+  align-items:center; justify-content:center;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:#fff; border-radius:12px; width:460px; max-width:95vw;
+  padding:1.75rem; box-shadow:var(--shlg);
+}
+.modal h3 { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.modal p  { font-size:12px; color:var(--g500); line-height:1.6; margin-bottom:1.25rem; }
+.msteps { display:flex; flex-direction:column; gap:10px; margin-bottom:1.25rem; }
+.mstep  { display:flex; gap:11px; align-items:flex-start; }
+.mnum {
+  width:22px; height:22px; background:var(--navy); color:#fff;
+  border-radius:50%; font-size:10px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+}
+.mtext { font-size:12px; color:var(--g700); line-height:1.6; }
+.mtext strong { color:var(--navy); }
+.mtext a { color:var(--blue2); }
+.mcode {
+  font-family:monospace; font-size:11px; background:var(--g50);
+  border:1px solid var(--g200); border-radius:var(--rsm);
+  padding:7px 10px; color:var(--g700); margin-top:5px;
+  display:block; word-break:break-all;
+}
+.macts { display:flex; gap:7px; justify-content:flex-end; }
+.mbtn {
+  font-family:'Open Sans',sans-serif; font-size:12px; font-weight:600;
+  padding:7px 16px; border-radius:var(--rsm);
+  border:1px solid var(--g200); background:#fff; color:var(--g700);
+  cursor:pointer; transition:all .15s;
+}
+.mbtn:hover { background:var(--g50); }
+.mbtn.pri { background:var(--navy); border-color:var(--navy); color:#fff; }
+.mbtn.pri:hover { background:#162f5a; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbrand">
+    <div class="hlogo">🏢</div>
+    <div>
+      <div class="htitle">Planning Immobilier</div>
+      <div class="hsub">Éditeur de phases collaboratif</div>
+    </div>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn" onclick="saveToURL()">💾 Sauvegarder le lien</button>
+    <button class="hbtn" onclick="exportSVG()">⬇ Exporter SVG</button>
+    <button class="hbtn pri" onclick="document.getElementById('shareModal').classList.add('open')">🔗 Partager</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+
+    <div class="ssec">
+      <div class="slabel">Projet</div>
+      <div class="fg"><label>Nom du projet</label><input type="text" id="projectName" value="Recherche de nouveaux locaux" oninput="renderGantt()"></div>
+      <div class="fg"><label>Client / Mandant</label><input type="text" id="clientName" value="1001 Vies Habitat" oninput="renderGantt()"></div>
+      <div class="fg"><label>Date T0 (démarrage)</label><input type="date" id="t0" value="2026-04-01" onchange="renderGantt()"></div>
+    </div>
+
+    <div class="ssec">
+      <div class="slabel">Phases</div>
+      <div id="phaseList"></div>
+      <button class="addbtn" onclick="addPhase()">+ Ajouter une phase</button>
+    </div>
+
+    <div class="ssec">
+      <div class="slabel">Jalons</div>
+      <div id="milestoneList"></div>
+      <button class="addbtn" onclick="addMilestone()">+ Ajouter un jalon</button>
+    </div>
+
+  </aside>
+
+  <main class="main">
+    <div class="gtop">
+      <div>
+        <div class="gtitle" id="gtitle">Planning de projet immobilier</div>
+        <div class="gsub"   id="gsub">1001 Vies Habitat · Démarrage : avril 2026</div>
+      </div>
+    </div>
+    <div class="gbox">
+      <div class="gscroll" id="gscroll"></div>
+      <div class="glegend">
+        <div class="gli" id="leg-phase"><span style="width:14px;height:10px;border-radius:3px;background:#1a5faa;display:inline-block"></span> Phase</div>
+        <div class="gli" id="leg-ms"><span style="width:10px;height:10px;transform:rotate(45deg);background:#c94428;display:inline-block;border-radius:2px"></span> Jalon</div>
+        <div class="gli" id="leg-today" onclick="toggleToday()" title="Cliquer pour afficher/masquer">
+          <span style="width:16px;height:0;border-top:2px dashed #b06a00;display:inline-block"></span> Aujourd'hui
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Share Modal -->
+<div class="modal-bg" id="shareModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <h3>🌐 Héberger &amp; partager</h3>
+    <p>Publiez ce fichier HTML gratuitement via GitHub Pages en 3 étapes.</p>
+    <div class="msteps">
+      <div class="mstep"><div class="mnum">1</div><div class="mtext"><strong>Téléchargez le fichier</strong> ci-dessous et renommez-le <code>index.html</code>.</div></div>
+      <div class="mstep"><div class="mnum">2</div><div class="mtext"><strong>Sur GitHub</strong>, allez dans votre dépôt → Add file → Upload files → glissez <code>index.html</code> → Commit changes.</div></div>
+      <div class="mstep"><div class="mnum">3</div><div class="mtext"><strong>Settings → Pages → Source : main / root → Save.</strong> Votre lien :<span class="mcode">https://pierrecolliers.github.io/Planning-ajustable/</span></div></div>
+      <div class="mstep"><div class="mnum">✓</div><div class="mtext"><strong>Astuce :</strong> utilisez « Sauvegarder le lien » pour partager une version figée par URL.</div></div>
+    </div>
+    <div class="macts">
+      <button class="mbtn" onclick="document.getElementById('shareModal').classList.remove('open')">Fermer</button>
+      <button class="mbtn pri" onclick="downloadHTML()">⬇ Télécharger le fichier HTML</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Default color palettes ──────────────────────────────────────────────────
+const PCOLORS = ['#1a5faa','#0d8f75','#5c44c9','#c94428','#2d7a2d','#993556','#b06a00'];
+const MCOLORS = ['#c94428','#b06a00','#0d8f75','#5c44c9','#1a5faa'];
+
+function defPC(i){ return PCOLORS[i % PCOLORS.length]; }
+function defMC(i){ return MCOLORS[i % MCOLORS.length]; }
+
+// ── Data ────────────────────────────────────────────────────────────────────
+let phases = [
+  { name:'Phase 1 – Analyse du besoin et cadrage',          start:'2026-04-01', end:'2026-04-15', deliverables:'Expression de besoins\nPréprogramme\nÉtude des temps de trajet', open:false, color:'', bold:false, underline:false, size:11 },
+  { name:'Phase 2 – Recherche et identification des biens', start:'2026-04-15', end:'2026-05-15', deliverables:'Long-list de sites\nFiches immobilières\nAnalyse multicritères',   open:false, color:'', bold:false, underline:false, size:11 },
+  { name:'Phase 3 – Analyse et aide à la décision',         start:'2026-05-01', end:'2026-06-15', deliverables:'Short-list\nModélisation financière\nRapport de synthèse',         open:false, color:'', bold:false, underline:false, size:11 },
+  { name:'Phase 4 – Accompagnement à la négociation',       start:'2026-06-01', end:'2026-08-01', deliverables:"Lettres d'intérêt\nProtocole d'accord",                           open:false, color:'', bold:false, underline:false, size:11 },
+  { name:'Phase 5 – Accompagnement jusqu\'à la conclusion', start:'2026-07-15', end:'2026-11-30', deliverables:'Format OSAF\nFiche opération\nPrésentation synthétique',           open:false, color:'', bold:false, underline:false, size:11 },
+];
+let milestones = [
+  { name:'Lancement du projet',            date:'2026-04-01', open:false, color:'', bold:false, underline:false, size:10 },
+  { name:'Validation site lauréat (COMEX)',date:'2026-07-15', open:false, color:'', bold:false, underline:false, size:10 },
+];
+
+let showToday = true;
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function parseD(s){ return new Date(s + 'T00:00:00'); }
+function toISO(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function diffDays(a,b){ return Math.round((b-a)/86400000); }
+function fmtDate(s){ return s ? parseD(s).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '—'; }
+function durLabel(s,e){
+  if(!s||!e) return '';
+  const d = diffDays(parseD(s), parseD(e));
+  if(d<0)  return '⚠';
+  if(d<14) return d+'j';
+  if(d<60) return Math.round(d/7)+' sem.';
+  return Math.round(d/30)+' mois';
+}
+function lighten(hex){
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgb('+Math.round(r+(255-r)*.82)+','+Math.round(g+(255-g)*.82)+','+Math.round(b+(255-b)*.82)+')';
+}
+function pColor(p,i){ return p.color || defPC(i); }
+function mColor(m,i){ return m.color || defMC(i); }
+
+// ── Sidebar: render phases ───────────────────────────────────────────────────
+function renderPhaseList(){
+  const el = document.getElementById('phaseList');
+  el.innerHTML = '';
+  phases.forEach(function(p, i){
+    const col = pColor(p, i);
+    const card = document.createElement('div');
+    card.className = 'card' + (p.open ? ' open' : '');
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'card-hdr';
+    hdr.innerHTML =
+      '<div class="card-badge" style="background:'+col+'">'+(i+1)+'</div>'
+      +'<div class="card-name">'+(p.name||'Sans nom')+'</div>'
+      +'<div class="card-meta">'+durLabel(p.start,p.end)+'</div>'
+      +'<div class="card-chev">▼</div>';
+    hdr.addEventListener('click', function(){ p.open=!p.open; renderPhaseList(); });
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    // Name
+    const fgName = mkFG('Nom de la phase');
+    const inpName = mkInput('text', p.name, function(){ p.name=this.value; renderPhaseList(); renderGantt(); });
+    fgName.appendChild(inpName); body.appendChild(fgName);
+
+    // Dates
+    const dates = document.createElement('div'); dates.className='fg2';
+    const fgS = mkFG('Début'); const inpS = mkInput('date', p.start, function(){ p.start=this.value; renderPhaseList(); renderGantt(); }); fgS.appendChild(inpS); dates.appendChild(fgS);
+    const fgE = mkFG('Fin');   const inpE = mkInput('date', p.end,   function(){ p.end=this.value;   renderPhaseList(); renderGantt(); }); fgE.appendChild(inpE); dates.appendChild(fgE);
+    body.appendChild(dates);
+
+    // Deliverables
+    const fgDel = mkFG('Livrables');
+    const ta = document.createElement('textarea'); ta.value = p.deliverables||'';
+    ta.addEventListener('input', function(){ p.deliverables=this.value; renderGantt(); });
+    fgDel.appendChild(ta); body.appendChild(fgDel);
+
+    // Color
+    body.appendChild(mkColorRow(col, function(v){ p.color=v; renderPhaseList(); renderGantt(); }, function(){ p.color=''; renderPhaseList(); renderGantt(); }));
+
+    // Font size
+    body.appendChild(mkSizeRow(p.size||11, function(v){ p.size=v; renderGantt(); }));
+
+    // Bold / underline
+    body.appendChild(mkStyleRow(p.bold, p.underline,
+      function(){ p.bold=!p.bold; renderPhaseList(); renderGantt(); },
+      function(){ p.underline=!p.underline; renderPhaseList(); renderGantt(); }
+    ));
+
+    // Delete
+    const del = document.createElement('button'); del.className='delbtn'; del.textContent='Supprimer cette phase';
+    del.addEventListener('click', function(){ phases.splice(i,1); renderPhaseList(); renderGantt(); });
+    body.appendChild(del);
+
+    card.appendChild(hdr); card.appendChild(body);
+    el.appendChild(card);
+  });
+}
+
+// ── Sidebar: render milestones ───────────────────────────────────────────────
+function renderMilestoneList(){
+  const el = document.getElementById('milestoneList');
+  el.innerHTML = '';
+  milestones.forEach(function(m, i){
+    const col = mColor(m, i);
+    const card = document.createElement('div');
+    card.className = 'card' + (m.open ? ' open' : '');
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'card-hdr';
+    hdr.innerHTML =
+      '<div class="card-diamond" style="background:'+col+'"></div>'
+      +'<div class="card-name">'+(m.name||'Jalon')+'</div>'
+      +'<div class="card-meta">'+(m.date||'')+'</div>'
+      +'<div class="card-chev">▼</div>';
+    hdr.addEventListener('click', function(){ m.open=!m.open; renderMilestoneList(); });
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    // Name
+    const fgName = mkFG('Nom du jalon');
+    const inpName = mkInput('text', m.name, function(){ m.name=this.value; renderMilestoneList(); renderGantt(); });
+    fgName.appendChild(inpName); body.appendChild(fgName);
+
+    // Date
+    const fgDate = mkFG('Date');
+    const inpDate = mkInput('date', m.date, function(){ m.date=this.value; renderMilestoneList(); renderGantt(); });
+    fgDate.appendChild(inpDate); body.appendChild(fgDate);
+
+    // Color
+    body.appendChild(mkColorRow(col, function(v){ m.color=v; renderMilestoneList(); renderGantt(); }, function(){ m.color=''; renderMilestoneList(); renderGantt(); }));
+
+    // Font size
+    body.appendChild(mkSizeRow(m.size||10, function(v){ m.size=v; renderGantt(); }));
+
+    // Bold / underline
+    body.appendChild(mkStyleRow(m.bold, m.underline,
+      function(){ m.bold=!m.bold; renderMilestoneList(); renderGantt(); },
+      function(){ m.underline=!m.underline; renderMilestoneList(); renderGantt(); }
+    ));
+
+    // Delete
+    const del = document.createElement('button'); del.className='delbtn'; del.textContent='Supprimer ce jalon';
+    del.addEventListener('click', function(){ milestones.splice(i,1); renderMilestoneList(); renderGantt(); });
+    body.appendChild(del);
+
+    card.appendChild(hdr); card.appendChild(body);
+    el.appendChild(card);
+  });
+}
+
+// ── UI helpers ───────────────────────────────────────────────────────────────
+function mkFG(labelText){
+  const fg = document.createElement('div'); fg.className='fg';
+  if(labelText){ const lbl=document.createElement('label'); lbl.textContent=labelText; fg.appendChild(lbl); }
+  return fg;
+}
+function mkInput(type, value, handler){
+  const inp = document.createElement('input'); inp.type=type; inp.value=value||'';
+  inp.addEventListener(type==='date'?'change':'input', handler);
+  return inp;
+}
+function mkColorRow(currentColor, onChange, onReset){
+  const row = document.createElement('div'); row.className='fg';
+  const lbl = document.createElement('label'); lbl.textContent='Couleur'; row.appendChild(lbl);
+  const cr = document.createElement('div'); cr.className='color-row';
+  const cp = document.createElement('input'); cp.type='color'; cp.value=currentColor;
+  cp.addEventListener('input', function(){ onChange(this.value); });
+  const rb = document.createElement('button'); rb.className='resetbtn'; rb.textContent='↺ Défaut';
+  rb.addEventListener('click', onReset);
+  cr.appendChild(cp); cr.appendChild(rb); row.appendChild(cr);
+  return row;
+}
+function mkSizeRow(currentSize, onChange){
+  const fg = document.createElement('div'); fg.className='fg';
+  const lbl = document.createElement('label'); lbl.textContent='Taille de police'; fg.appendChild(lbl);
+  const row = document.createElement('div'); row.className='range-row';
+  const sl = document.createElement('input'); sl.type='range'; sl.min=8; sl.max=16; sl.step=1; sl.value=currentSize;
+  const val = document.createElement('span'); val.className='range-val'; val.textContent=currentSize+'px';
+  sl.addEventListener('input', function(){ val.textContent=this.value+'px'; onChange(+this.value); });
+  row.appendChild(sl); row.appendChild(val); fg.appendChild(row);
+  return fg;
+}
+function mkStyleRow(isBold, isUnderline, onBold, onUnderline){
+  const fg = document.createElement('div'); fg.className='fg';
+  const lbl = document.createElement('label'); lbl.textContent='Style'; fg.appendChild(lbl);
+  const row = document.createElement('div'); row.className='fcontrols';
+  const bBtn = document.createElement('button'); bBtn.className='fbtn'+(isBold?' on':'');
+  bBtn.innerHTML='<b>G</b>'; bBtn.title='Gras';
+  bBtn.addEventListener('click', onBold);
+  const uBtn = document.createElement('button'); uBtn.className='fbtn'+(isUnderline?' on':'');
+  uBtn.innerHTML='<u>S</u>'; uBtn.title='Souligné';
+  uBtn.addEventListener('click', onUnderline);
+  row.appendChild(bBtn); row.appendChild(uBtn); fg.appendChild(row);
+  return fg;
+}
+
+// ── Add ──────────────────────────────────────────────────────────────────────
+function addPhase(){
+  const last = phases[phases.length-1];
+  const ns = last ? last.end : (document.getElementById('t0').value||'2026-04-01');
+  const ne = toISO(addDays(parseD(ns), 30));
+  phases.push({ name:'Phase '+(phases.length+1)+' – Nouvelle phase', start:ns, end:ne, deliverables:'', open:true, color:'', bold:false, underline:false, size:11 });
+  renderPhaseList(); renderGantt();
+}
+function addMilestone(){
+  const d = document.getElementById('t0').value||'2026-04-01';
+  milestones.push({ name:'Nouveau jalon', date:d, open:true, color:'', bold:false, underline:false, size:10 });
+  renderMilestoneList(); renderGantt();
+}
+
+// ── Toggle today ─────────────────────────────────────────────────────────────
+function toggleToday(){
+  showToday = !showToday;
+  document.getElementById('leg-today').classList.toggle('off', !showToday);
+  renderGantt();
+}
+
+// ── Gantt SVG ────────────────────────────────────────────────────────────────
+function renderGantt(){
+  const t0str = document.getElementById('t0').value||'2026-04-01';
+  const t0 = parseD(t0str);
+  const projectName = document.getElementById('projectName').value||'Planning';
+  const clientName  = document.getElementById('clientName').value||'';
+
+  document.getElementById('gtitle').textContent = projectName;
+  document.getElementById('gsub').textContent   = (clientName?clientName+' · ':'')+'Démarrage : '+t0.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+
+  if(!phases.length && !milestones.length){
+    document.getElementById('gscroll').innerHTML='<div style="padding:3rem;text-align:center;color:#7a8498;font-size:13px;">Aucune phase définie</div>';
+    return;
+  }
+
+  const allEnds = [
+    ...phases.map(function(p){ return p.end?parseD(p.end):t0; }),
+    ...milestones.map(function(m){ return m.date?parseD(m.date):t0; })
+  ];
+  const maxEnd = new Date(Math.max.apply(null, allEnds));
+  let totalMonths = Math.ceil(diffDays(t0, maxEnd)/30)+1;
+  totalMonths = Math.max(totalMonths, 6);
+
+  const MW=92, LEFT=16, TOP=60, RH=72, BH=28, BR=14;
+  const W = LEFT + MW*totalMonths + 220;
+  const H = TOP + phases.length*RH + milestones.length*44 + 24;
+
+  let s = '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg">';
+
+  // bg stripes
+  for(var mi=0; mi<totalMonths; mi++){
+    s += '<rect x="'+(LEFT+mi*MW)+'" y="0" width="'+MW+'" height="'+H+'" fill="'+(mi%2===0?'#f7f8fa':'#fff')+'"/>';
+  }
+
+  // header
+  s += '<rect x="0" y="0" width="'+W+'" height="'+TOP+'" fill="#0f2544"/>';
+
+  // month labels
+  for(var mi=0; mi<totalMonths; mi++){
+    const x = LEFT + mi*MW;
+    const cd = new Date(t0.getFullYear(), t0.getMonth()+mi, 1);
+    const mn = cd.toLocaleDateString('fr-FR',{month:'short'}).replace('.','');
+    const top = mn.charAt(0).toUpperCase()+mn.slice(1)+' '+cd.toLocaleDateString('fr-FR',{year:'2-digit'});
+    const bot = mi===0 ? 'T0' : 'T+'+mi;
+    s += '<text x="'+(x+MW/2)+'" y="'+(TOP/2-3)+'" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="11" font-weight="700" fill="#fff">'+top+'</text>';
+    s += '<text x="'+(x+MW/2)+'" y="'+(TOP/2+12)+'" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="9" fill="rgba(255,255,255,.4)">'+bot+'</text>';
+    if(mi>0) s += '<line x1="'+x+'" y1="'+TOP+'" x2="'+x+'" y2="'+H+'" stroke="#e8eaee" stroke-width="0.75"/>';
+  }
+
+  // today
+  if(showToday){
+    const tod = diffDays(t0, new Date());
+    if(tod>0 && tod<totalMonths*30){
+      const tx = LEFT + (tod/30)*MW;
+      s += '<line x1="'+tx+'" y1="'+TOP+'" x2="'+tx+'" y2="'+H+'" stroke="#b06a00" stroke-width="1.5" stroke-dasharray="5,4" opacity=".7"/>';
+      s += '<rect x="'+(tx-16)+'" y="'+(TOP+2)+'" width="32" height="15" rx="7" fill="#b06a00"/>';
+      s += '<text x="'+tx+'" y="'+(TOP+13)+'" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="9" font-weight="700" fill="#fff">Auj.</text>';
+    }
+  }
+
+  // phases
+  phases.forEach(function(p, i){
+    if(!p.start||!p.end) return;
+    const ps=parseD(p.start), pe=parseD(p.end);
+    const sx=LEFT+(diffDays(t0,ps)/30)*MW;
+    const ex=LEFT+(diffDays(t0,pe)/30)*MW;
+    const bw=Math.max(ex-sx, 70);
+    const y=TOP+i*RH;
+    const by=y+(RH-BH)/2;
+    const col=pColor(p,i);
+    const lcol=lighten(col);
+    const days=diffDays(ps,pe);
+    const dur=days<14?days+'j':days<60?Math.round(days/7)+' sem.':Math.round(days/30)+' mois';
+    const fs=p.size||11;
+    const fw=p.bold?'700':'600';
+    const fdec=p.underline?'underline':'none';
+
+    // separator
+    if(i>0) s+='<line x1="0" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="#eef0f4" stroke-width="1"/>';
+
+    // bar shadow
+    s+='<rect x="'+(sx+2)+'" y="'+(by+3)+'" width="'+bw+'" height="'+BH+'" rx="'+BR+'" fill="'+col+'" opacity=".12"/>';
+    // bar
+    s+='<rect x="'+sx+'" y="'+by+'" width="'+bw+'" height="'+BH+'" rx="'+BR+'" fill="'+col+'"/>';
+    // dots
+    s+='<circle cx="'+sx+'" cy="'+(by+BH/2)+'" r="5" fill="#fff" stroke="'+col+'" stroke-width="2"/>';
+    s+='<circle cx="'+(sx+bw)+'" cy="'+(by+BH/2)+'" r="7" fill="#fff" stroke="'+col+'" stroke-width="2.5"/>';
+
+    // label
+    const estW = p.name.length * fs * 0.6 + 24;
+    if(bw >= estW){
+      s+='<text x="'+(sx+15)+'" y="'+(by+BH/2+fs*0.38)+'" font-family="Open Sans,sans-serif" font-size="'+fs+'" font-weight="'+fw+'" text-decoration="'+fdec+'" fill="#fff">'+p.name+'</text>';
+    } else if(bw >= 50){
+      const clipId='cp'+i;
+      s+='<defs><clipPath id="'+clipId+'"><rect x="'+sx+'" y="'+(by-22)+'" width="'+(W-sx)+'" height="22"/></clipPath></defs>';
+      s+='<text x="'+(sx+4)+'" y="'+(by-5)+'" font-family="Open Sans,sans-serif" font-size="'+fs+'" font-weight="'+fw+'" text-decoration="'+fdec+'" fill="'+col+'" clip-path="url(#'+clipId+')">'+p.name+'</text>';
+    } else {
+      s+='<text x="'+(sx+bw+14)+'" y="'+(by+BH/2+4)+'" font-family="Open Sans,sans-serif" font-size="'+fs+'" font-weight="'+fw+'" text-decoration="'+fdec+'" fill="'+col+'">'+p.name+'</text>';
+    }
+
+    // duration badge
+    const bx=sx+bw+10;
+    const badgeW=dur.length*6.5+12;
+    s+='<rect x="'+bx+'" y="'+(by+BH/2-9)+'" width="'+badgeW+'" height="18" rx="9" fill="'+lcol+'"/>';
+    s+='<text x="'+(bx+badgeW/2)+'" y="'+(by+BH/2+4)+'" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="10" font-weight="700" fill="'+col+'">'+dur+'</text>';
+
+    // deliverables
+    const delivs=(p.deliverables||'').split('\n').filter(function(l){return l.trim();}).slice(0,3);
+    const dx=bx+badgeW+8;
+    if(bw>=estW){
+      delivs.forEach(function(line,li){
+        s+='<text x="'+dx+'" y="'+(by+4+li*13+12)+'" font-family="Open Sans,sans-serif" font-size="9.5" fill="#5a6478">▪ '+line+'</text>';
+      });
+    }
+  });
+
+  // milestones
+  const msY0 = TOP + phases.length*RH + 8;
+  milestones.forEach(function(m, i){
+    if(!m.date) return;
+    const col=mColor(m,i);
+    const lcol=lighten(col);
+    const md=parseD(m.date);
+    const mx=LEFT+(diffDays(t0,md)/30)*MW;
+    const my=msY0+i*42;
+    const fs=m.size||10;
+    const fw=m.bold?'700':'600';
+    const fdec=m.underline?'underline':'none';
+    const lw=m.name.length*(fs*0.62)+20;
+
+    s+='<line x1="'+mx+'" y1="'+TOP+'" x2="'+mx+'" y2="'+(my+12)+'" stroke="'+col+'" stroke-width="1" stroke-dasharray="3,3" opacity=".5"/>';
+    s+='<polygon points="'+mx+','+(my)+' '+(mx+8)+','+(my+10)+' '+mx+','+(my+20)+' '+(mx-8)+','+(my+10)+'" fill="'+col+'"/>';
+    s+='<rect x="'+(mx+14)+'" y="'+(my+2)+'" width="'+lw+'" height="'+(fs+8)+'" rx="'+(fs/2+4)+'" fill="'+lcol+'"/>';
+    s+='<text x="'+(mx+14+lw/2)+'" y="'+(my+fs+5)+'" text-anchor="middle" font-family="Open Sans,sans-serif" font-size="'+fs+'" font-weight="'+fw+'" text-decoration="'+fdec+'" fill="'+col+'">'+m.name+'</text>';
+    s+='<text x="'+(mx+14+lw+6)+'" y="'+(my+fs+5)+'" font-family="Open Sans,sans-serif" font-size="'+(fs-1)+'" fill="#7a8498">'+fmtDate(m.date)+'</text>';
+  });
+
+  s += '</svg>';
+
+  const wrap = document.getElementById('gscroll');
+  wrap.innerHTML = s;
+  attachDrag(wrap.querySelector('svg'), t0, LEFT, MW, TOP, RH, BH);
+}
+
+// ── Drag to move/resize bars ─────────────────────────────────────────────────
+const HW = 10;
+let drag = null;
+
+function attachDrag(svg, t0, LEFT, MW, TOP, RH, BH){
+  if(!svg) return;
+
+  function svgX(e){
+    const r=svg.getBoundingClientRect();
+    return (e.clientX-r.left)*(svg.viewBox.baseVal.width/r.width);
+  }
+  function svgY(e){
+    const r=svg.getBoundingClientRect();
+    return (e.clientY-r.top)*(svg.viewBox.baseVal.height/r.height);
+  }
+  function barOf(p,i){
+    const ps=parseD(p.start), pe=parseD(p.end);
+    const sx=LEFT+(diffDays(t0,ps)/30)*MW;
+    const bw=Math.max(LEFT+(diffDays(t0,pe)/30)*MW-sx, 70);
+    const by=TOP+i*RH+(RH-BH)/2;
+    return {sx,bw,by};
+  }
+
+  svg.addEventListener('mousedown', function(e){
+    const mx=svgX(e), my=svgY(e);
+    for(var i=0;i<phases.length;i++){
+      const p=phases[i]; if(!p.start||!p.end) continue;
+      const {sx,bw,by}=barOf(p,i);
+      if(my<by||my>by+BH) continue;
+      if(mx>=sx+bw-HW && mx<=sx+bw+HW){
+        drag={type:'resize',i,ox:mx,oEnd:p.end}; svg.style.cursor='ew-resize'; e.preventDefault(); return;
+      }
+      if(mx>=sx-HW && mx<=sx+HW){
+        drag={type:'rstart',i,ox:mx,oStart:p.start}; svg.style.cursor='ew-resize'; e.preventDefault(); return;
+      }
+      if(mx>=sx && mx<=sx+bw){
+        drag={type:'move',i,ox:mx,oStart:p.start,dur:diffDays(parseD(p.start),parseD(p.end))}; svg.style.cursor='grabbing'; e.preventDefault(); return;
+      }
+    }
+  });
+
+  window.addEventListener('mousemove', function(e){
+    if(!drag) return;
+    const svg2=document.getElementById('gscroll').querySelector('svg'); if(!svg2) return;
+    const r=svg2.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(svg2.viewBox.baseVal.width/r.width);
+    const p=phases[drag.i];
+    const dd=Math.round(((mx-drag.ox)/MW)*30);
+    if(drag.type==='resize'){
+      const ne=addDays(parseD(drag.oEnd),dd);
+      if(ne>addDays(parseD(p.start),3)){ p.end=toISO(ne); renderGantt(); }
+    } else if(drag.type==='rstart'){
+      const ns=addDays(parseD(drag.oStart),dd);
+      if(parseD(p.end)>addDays(ns,3)){ p.start=toISO(ns); renderGantt(); }
+    } else if(drag.type==='move'){
+      const ns=addDays(parseD(drag.oStart),dd);
+      p.start=toISO(ns); p.end=toISO(addDays(ns,drag.dur)); renderGantt();
+    }
+  });
+
+  window.addEventListener('mouseup', function(){
+    if(drag){ drag=null; const s=document.getElementById('gscroll').querySelector('svg'); if(s)s.style.cursor='default'; renderPhaseList(); }
+  });
+
+  svg.addEventListener('mousemove', function(e){
+    if(drag) return;
+    const mx=svgX(e), my=svgY(e);
+    let found=false;
+    for(var i=0;i<phases.length;i++){
+      const p=phases[i]; if(!p.start||!p.end) continue;
+      const {sx,bw,by}=barOf(p,i);
+      if(my<by||my>by+BH) continue;
+      if((mx>=sx+bw-HW&&mx<=sx+bw+HW)||(mx>=sx-HW&&mx<=sx+HW)){ svg.style.cursor='ew-resize'; found=true; break; }
+      if(mx>=sx&&mx<=sx+bw){ svg.style.cursor='grab'; found=true; break; }
+    }
+    if(!found) svg.style.cursor='default';
+  });
+}
+
+// ── URL state ────────────────────────────────────────────────────────────────
+function saveToURL(){
+  const state={
+    phases, milestones, showToday,
+    t0:document.getElementById('t0').value,
+    project:document.getElementById('projectName').value,
+    client:document.getElementById('clientName').value
+  };
+  const enc = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  const url = window.location.origin+window.location.pathname+'?d='+enc;
+  navigator.clipboard.writeText(url).then(function(){
+    alert('✅ Lien copié !\nPartagez-le à votre équipe — ils verront exactement ce planning.');
+  }).catch(function(){
+    prompt('Copiez ce lien :', url);
+  });
+}
+
+function loadFromURL(){
+  const d = new URLSearchParams(window.location.search).get('d');
+  if(!d) return;
+  try {
+    const st = JSON.parse(decodeURIComponent(escape(atob(d))));
+    if(st.phases)    phases    = st.phases;
+    if(st.milestones)milestones= st.milestones;
+    if(st.t0)        document.getElementById('t0').value=st.t0;
+    if(st.project)   document.getElementById('projectName').value=st.project;
+    if(st.client)    document.getElementById('clientName').value=st.client;
+    if(st.showToday!==undefined) showToday=st.showToday;
+  } catch(e){}
+}
+
+// ── Export ───────────────────────────────────────────────────────────────────
+function exportSVG(){
+  const svg=document.getElementById('gscroll').querySelector('svg');
+  if(!svg){alert('Aucun planning à exporter.');return;}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['<?xml version="1.0" encoding="UTF-8"?>'+svg.outerHTML],{type:'image/svg+xml'}));
+  a.download='planning-immobilier.svg'; a.click();
+}
+function downloadHTML(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([document.documentElement.outerHTML],{type:'text/html'}));
+  a.download='index.html'; a.click();
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+loadFromURL();
+renderPhaseList();
+renderMilestoneList();
+renderGantt();
+</script>
+</body>
+</html>
