@@ -10,10 +10,11 @@
       --bg: #f8fafc;
       --panel-bg: #ffffff;
       --border: #e2e8f0;
+      --border-sub: #f1f5f9;
       --text: #0f172a;
       --muted: #64748b;
-      --col-width: 95px;
-      --row-height: 50px;
+      --half-col-width: 45px; /* Un demi-mois = 45px, donc un mois plein = 90px */
+      --row-height: 52px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -57,12 +58,25 @@
 
     .timeline-table { display: flex; flex-direction: column; min-width: max-content; }
     
-    .header-row { display: flex; border-bottom: 2px solid var(--border); background: #f8fafc; position: sticky; top: 0; z-index: 5; }
-    .header-label-col { width: 280px; min-width: 280px; padding: 12px 16px; font-weight: 700; font-size: 0.9rem; color: #475569; border-right: 1px solid var(--border); }
-    .header-months { display: flex; }
-    .month-col {
-      width: var(--col-width); min-width: var(--col-width); text-align: center;
-      padding: 12px 0; font-size: 0.85rem; font-weight: 700; color: #334155; border-right: 1px solid var(--border);
+    /* Double niveau d'entête (Mois + Demi-mois) */
+    .header-row-months, .header-row-sub { display: flex; background: #f8fafc; }
+    .header-row-months { border-bottom: 1px solid var(--border); }
+    .header-row-sub { border-bottom: 2px solid var(--border); }
+
+    .header-label-col {
+      width: 280px; min-width: 280px; padding: 10px 16px; font-weight: 700;
+      font-size: 0.85rem; color: #475569; border-right: 1px solid var(--border); display: flex; align-items: center;
+    }
+    
+    .month-header-col {
+      width: calc(var(--half-col-width) * 2); min-width: calc(var(--half-col-width) * 2);
+      text-align: center; padding: 8px 0; font-size: 0.85rem; font-weight: 700; color: #1e293b;
+      border-right: 1px solid var(--border);
+    }
+    .sub-month-col {
+      width: var(--half-col-width); min-width: var(--half-col-width);
+      text-align: center; padding: 4px 0; font-size: 0.7rem; font-weight: 600; color: #94a3b8;
+      border-right: 1px solid var(--border);
     }
 
     .group-row {
@@ -98,22 +112,30 @@
     .delete-btn:hover { color: #ef4444; }
 
     .grid-container { display: flex; position: relative; flex-grow: 1; }
-    .grid-col { width: var(--col-width); min-width: var(--col-width); border-right: 1px dashed #e2e8f0; height: 100%; pointer-events: none; }
+    .grid-col {
+      width: var(--half-col-width); min-width: var(--half-col-width);
+      border-right: 1px dashed var(--border-sub); height: 100%; pointer-events: none;
+    }
+    /* Séparateur plus marqué à la fin de chaque mois complet */
+    .grid-col.month-boundary { border-right: 1px solid var(--border); }
 
     .task-bar {
-      position: absolute; top: 9px; height: 32px; border-radius: 6px; color: white;
-      display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600;
-      cursor: grab; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.12); padding: 0 10px;
+      position: absolute; top: 8px; height: 35px; border-radius: 6px; color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 600;
+      cursor: grab; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.12); padding: 0 12px;
     }
     .task-bar:active { cursor: grabbing; }
 
+    /* Zone de texte directement éditable sur la barre */
     .bar-text {
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; outline: none; border: 1px dashed transparent;
-      padding: 1px 4px; border-radius: 3px; max-width: 90%;
+      width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      outline: none; border: 1px dashed transparent; border-radius: 4px; padding: 2px 4px;
+      cursor: text; user-select: text;
     }
-    .bar-text:hover, .bar-text:focus { border-color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.15); }
+    .bar-text:hover { border-color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.1); }
+    .bar-text:focus { border-color: #ffffff; background: rgba(0,0,0,0.25); white-space: normal; }
 
-    .resize-handle { position: absolute; top: 0; bottom: 0; width: 10px; cursor: ew-resize; }
+    .resize-handle { position: absolute; top: 0; bottom: 0; width: 10px; cursor: ew-resize; z-index: 3; }
     .resize-left { left: 0; border-radius: 6px 0 0 6px; }
     .resize-right { right: 0; border-radius: 0 6px 6px 0; }
     .resize-handle:hover { background: rgba(0,0,0,0.25); }
@@ -142,7 +164,7 @@
 
   <div class="controls-panel">
     <div class="field-group">
-      <label>Mois de départ</label>
+      <label>Mois de démarrage</label>
       <input type="month" id="startMonth" value="2026-10" onchange="updateSettings()">
     </div>
     <div class="field-group">
@@ -166,54 +188,75 @@
   </div>
 
   <script>
+    // Chaque unité temporelle (step) représente désormais un demi-mois (15 jours).
+    // Une phase de 1 mois a donc une duration de 2 steps.
     let state = {
       projectTitle: "Planning Directeur de Déploiement",
       startMonth: "2026-10",
       durationMonths: 12,
       groups: ["1. Conception & Études", "2. Travaux & Réalisation", "3. Déploiement & Clôture"],
       tasks: [
-        { id: "t1", name: "Cadrage & Spécifications", group: "1. Conception & Études", start: 0, duration: 3, color: "#2563eb" },
-        { id: "t2", name: "Validations réglementaires", group: "1. Conception & Études", start: 2, duration: 2, color: "#4f46e5" },
-        { id: "t3", name: "Passation des marchés", group: "2. Travaux & Réalisation", start: 3, duration: 2, color: "#0891b2" },
-        { id: "t4", name: "Chantier & Aménagements", group: "2. Travaux & Réalisation", start: 5, duration: 5, color: "#ea580c" },
-        { id: "t5", name: "Recette & Livraison", group: "3. Déploiement & Clôture", start: 10, duration: 2, color: "#16a34a" }
+        { id: "t1", name: "Cadrage & Spécifications", group: "1. Conception & Études", start: 0, duration: 5, color: "#2563eb" }, // Démarre début M1, finit mi-M3
+        { id: "t2", name: "Validations réglementaires", group: "1. Conception & Études", start: 3, duration: 4, color: "#4f46e5" }, // Démarre mi-M2
+        { id: "t3", name: "Passation des marchés", group: "2. Travaux & Réalisation", start: 6, duration: 3, color: "#0891b2" },
+        { id: "t4", name: "Chantier & Aménagements", group: "2. Travaux & Réalisation", start: 9, duration: 10, color: "#ea580c" },
+        { id: "t5", name: "Recette & Clôture", group: "3. Déploiement & Clôture", start: 19, duration: 4, color: "#16a34a" }
       ]
     };
 
-    const COL_WIDTH = 95;
+    const HALF_WIDTH = 45; // Largeur d'une demi-colonne (step) en pixels
 
     function render() {
       document.getElementById('projectTitle').innerText = state.projectTitle;
       document.getElementById('startMonth').value = state.startMonth;
       document.getElementById('durationMonths').value = state.durationMonths;
 
+      const totalSteps = state.durationMonths * 2; // 2 demi-mois par mois
       const container = document.getElementById('timelineTable');
       container.innerHTML = '';
 
-      // Entête mois
-      const headerRow = document.createElement('div');
-      headerRow.className = 'header-row';
+      // 1. Entête Ligne 1 : Les Mois complets
+      const headerRowMonths = document.createElement('div');
+      headerRowMonths.className = 'header-row-months';
 
-      const labelCol = document.createElement('div');
-      labelCol.className = 'header-label-col';
-      labelCol.innerText = 'Phases & Familles';
-      headerRow.appendChild(labelCol);
-
-      const monthsWrap = document.createElement('div');
-      monthsWrap.className = 'header-months';
+      const labelCol1 = document.createElement('div');
+      labelCol1.className = 'header-label-col';
+      labelCol1.innerText = 'Phases & Familles';
+      headerRowMonths.appendChild(labelCol1);
 
       const [startYear, startM] = state.startMonth.split('-').map(Number);
       for (let i = 0; i < state.durationMonths; i++) {
         const d = new Date(startYear, (startM - 1) + i, 1);
         const col = document.createElement('div');
-        col.className = 'month-col';
+        col.className = 'month-header-col';
         col.innerText = d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }).toUpperCase();
-        monthsWrap.appendChild(col);
+        headerRowMonths.appendChild(col);
       }
-      headerRow.appendChild(monthsWrap);
-      container.appendChild(headerRow);
+      container.appendChild(headerRowMonths);
 
-      // Lignes de groupes et tâches
+      // 2. Entête Ligne 2 : Sous-découpage (Q1 = début de mois / Q2 = milieu de mois)
+      const headerRowSub = document.createElement('div');
+      headerRowSub.className = 'header-row-sub';
+
+      const labelCol2 = document.createElement('div');
+      labelCol2.className = 'header-label-col';
+      labelCol2.innerText = 'Échelle Quinzaine (15j)';
+      headerRowSub.appendChild(labelCol2);
+
+      for (let i = 0; i < state.durationMonths; i++) {
+        const q1 = document.createElement('div');
+        q1.className = 'sub-month-col';
+        q1.innerText = '1-15';
+        headerRowSub.appendChild(q1);
+
+        const q2 = document.createElement('div');
+        q2.className = 'sub-month-col';
+        q2.innerText = '16-30';
+        headerRowSub.appendChild(q2);
+      }
+      container.appendChild(headerRowSub);
+
+      // 3. Familles et Tâches
       state.groups.forEach((groupName) => {
         const groupHeader = document.createElement('div');
         groupHeader.className = 'group-row';
@@ -234,7 +277,7 @@
           const row = document.createElement('div');
           row.className = 'task-row';
 
-          // Colonne libellé + sélecteur couleur + suppression
+          // Colonne titre latéral
           const titleCol = document.createElement('div');
           titleCol.className = 'task-label-col';
 
@@ -251,7 +294,7 @@
           colorInput.type = 'color';
           colorInput.className = 'color-picker';
           colorInput.value = task.color || '#2563eb';
-          colorInput.title = 'Changer la couleur de la phase';
+          colorInput.title = 'Modifier la couleur';
           colorInput.oninput = (e) => updateTaskColor(task.id, e.target.value);
 
           const delBtn = document.createElement('button');
@@ -266,44 +309,51 @@
           titleCol.appendChild(actionsWrap);
           row.appendChild(titleCol);
 
-          // Grille mensuelle
+          // Grille chronologique (colonnes de demi-mois)
           const gridWrap = document.createElement('div');
           gridWrap.className = 'grid-container';
 
-          for (let i = 0; i < state.durationMonths; i++) {
+          for (let step = 0; step < totalSteps; step++) {
             const gridCol = document.createElement('div');
-            gridCol.className = 'grid-col';
+            // Si c'est une fin de mois (colonne impaire), on marque une séparation plus visible
+            gridCol.className = 'grid-col' + (step % 2 === 1 ? ' month-boundary' : '');
             gridWrap.appendChild(gridCol);
           }
 
-          // Barre horizontale interactive
+          // Barre horizontale
           const bar = document.createElement('div');
           bar.className = 'task-bar';
           bar.id = `bar-${task.id}`;
           bar.style.backgroundColor = task.color || '#2563eb';
-          bar.style.left = (task.start * COL_WIDTH) + 'px';
-          bar.style.width = (task.duration * COL_WIDTH) + 'px';
+          bar.style.left = (task.start * HALF_WIDTH) + 'px';
+          bar.style.width = (task.duration * HALF_WIDTH) + 'px';
 
-          // Texte éditable directement dans la barre
+          // Texte éditable au cœur de la barre
           const barText = document.createElement('div');
           barText.className = 'bar-text';
           barText.contentEditable = "true";
           barText.innerText = task.name;
-          barText.onblur = (e) => updateTaskName(task.id, e.target.innerText);
+          
+          // Gestion du focus texte : empêche le drag pendant la saisie
+          barText.addEventListener('mousedown', (e) => e.stopPropagation());
+          barText.addEventListener('blur', (e) => updateTaskName(task.id, e.target.innerText));
+
           bar.appendChild(barText);
 
-          // Poignées d'étirement
+          // Poignées d'étirement gauche / droite
           const hl = document.createElement('div');
           hl.className = 'resize-handle resize-left';
-          hl.addEventListener('mousedown', (e) => initResize(e, task, 'left'));
+          hl.addEventListener('mousedown', (e) => initResize(e, task, 'left', totalSteps));
 
           const hr = document.createElement('div');
           hr.className = 'resize-handle resize-right';
-          hr.addEventListener('mousedown', (e) => initResize(e, task, 'right'));
+          hr.addEventListener('mousedown', (e) => initResize(e, task, 'right', totalSteps));
 
           bar.appendChild(hl);
           bar.appendChild(hr);
-          bar.addEventListener('mousedown', (e) => initDrag(e, task));
+
+          // Glisser-déposer de la barre
+          bar.addEventListener('mousedown', (e) => initDrag(e, task, totalSteps));
 
           gridWrap.appendChild(bar);
           row.appendChild(gridWrap);
@@ -312,22 +362,22 @@
       });
     }
 
-    // Gestion Drag & Drop
-    function initDrag(e, task) {
+    // Gestion Drag & Drop au pas de demi-mois
+    function initDrag(e, task, totalSteps) {
       if (e.target.classList.contains('resize-handle') || e.target.classList.contains('bar-text')) return;
       e.preventDefault();
       const startX = e.clientX;
       const initialStart = task.start;
 
       function onMouseMove(moveEvent) {
-        const delta = Math.round((moveEvent.clientX - startX) / COL_WIDTH);
-        let newStart = initialStart + delta;
+        const deltaSteps = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
+        let newStart = initialStart + deltaSteps;
         if (newStart < 0) newStart = 0;
-        if (newStart + task.duration > state.durationMonths) newStart = state.durationMonths - task.duration;
+        if (newStart + task.duration > totalSteps) newStart = totalSteps - task.duration;
 
         task.start = newStart;
         const el = document.getElementById(`bar-${task.id}`);
-        if (el) el.style.left = (newStart * COL_WIDTH) + 'px';
+        if (el) el.style.left = (newStart * HALF_WIDTH) + 'px';
       }
 
       function onMouseUp() {
@@ -340,8 +390,8 @@
       document.addEventListener('mouseup', onMouseUp);
     }
 
-    // Gestion du Redimensionnement
-    function initResize(e, task, direction) {
+    // Gestion de l'étirement gauche / droite au pas de demi-mois
+    function initResize(e, task, direction, totalSteps) {
       e.stopPropagation();
       e.preventDefault();
       const startX = e.clientX;
@@ -349,12 +399,12 @@
       const initialDuration = task.duration;
 
       function onMouseMove(moveEvent) {
-        const delta = Math.round((moveEvent.clientX - startX) / COL_WIDTH);
+        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
 
         if (direction === 'right') {
           let newDuration = initialDuration + delta;
           if (newDuration < 1) newDuration = 1;
-          if (task.start + newDuration > state.durationMonths) newDuration = state.durationMonths - task.start;
+          if (task.start + newDuration > totalSteps) newDuration = totalSteps - task.start;
           task.duration = newDuration;
         } else {
           let newStart = initialStart + delta;
@@ -367,8 +417,8 @@
 
         const el = document.getElementById(`bar-${task.id}`);
         if (el) {
-          el.style.left = (task.start * COL_WIDTH) + 'px';
-          el.style.width = (task.duration * COL_WIDTH) + 'px';
+          el.style.left = (task.start * HALF_WIDTH) + 'px';
+          el.style.width = (task.duration * HALF_WIDTH) + 'px';
         }
       }
 
@@ -382,7 +432,6 @@
       document.addEventListener('mouseup', onMouseUp);
     }
 
-    // Mises à jour directes
     function updateTitle(newTitle) {
       state.projectTitle = newTitle.trim() || "Planning Projet";
     }
@@ -430,7 +479,7 @@
     }
 
     function deleteGroup(groupName) {
-      if (confirm(`Supprimer la famille "${groupName}" et toutes les phases qu'elle contient ?`)) {
+      if (confirm(`Supprimer la famille "${groupName}" et toutes ses phases associées ?`)) {
         state.groups = state.groups.filter(g => g !== groupName);
         state.tasks = state.tasks.filter(t => t.group !== groupName);
         render();
@@ -439,7 +488,7 @@
 
     function addTaskPrompt() {
       if (state.groups.length === 0) {
-        alert("Veuillez d'abord créer au moins une famille de phases.");
+        alert("Veuillez d'abord créer une famille de phases.");
         return;
       }
       addTaskToGroup(state.groups[0]);
@@ -456,7 +505,7 @@
         name: name.trim(),
         group: groupName,
         start: 0,
-        duration: 3,
+        duration: 2, // 2 demi-mois = 1 mois par défaut
         color: randomColor
       });
       render();
@@ -469,7 +518,6 @@
       }
     }
 
-    // Sauvegarde & Export
     function exportJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
       const a = document.createElement('a');
@@ -491,7 +539,7 @@
             state = parsed;
             render();
           } else {
-            alert("Format de fichier JSON non reconnu.");
+            alert("Format JSON non valide.");
           }
         } catch (err) {
           alert("Erreur lors de la lecture du fichier JSON.");
