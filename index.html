@@ -13,207 +13,144 @@
       --border-sub: #f1f5f9;
       --text: #0f172a;
       --muted: #64748b;
-      --half-col-width: 46px; /* 1 demi-mois (2 semaines) = 46px */
-      --row-height: 56px;
+      --step-w: 48px; /* 1 quinzaine (2 semaines) */
+      --row-h: 56px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 24px; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
-    
-    .editable-title {
-      font-size: 1.6rem; font-weight: 800; color: #1e3a8a; border: 1px dashed transparent;
-      padding: 4px 8px; border-radius: 6px; outline: none; cursor: text;
-    }
-    .editable-title:hover, .editable-title:focus { border-color: var(--primary); background: #ffffff; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .project-title { font-size: 1.5rem; font-weight: 800; color: #1e3a8a; outline: none; border-bottom: 2px dashed transparent; cursor: text; padding: 2px 6px; }
+    .project-title:hover, .project-title:focus { border-color: var(--primary); background: #ffffff; border-radius: 4px; }
 
-    .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .btn {
-      background-color: var(--primary); color: white; border: none; padding: 8px 14px;
-      border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;
-      display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn:hover { background-color: #1d4ed8; }
-    .btn-secondary { background-color: #ffffff; color: #334155; border: 1px solid var(--border); }
-    .btn-secondary:hover { background-color: #f1f5f9; }
-    .btn-success { background-color: #059669; }
-    .btn-success:hover { background-color: #047857; }
-    .btn-warning { background-color: #d97706; }
-    .btn-warning:hover { background-color: #b45309; }
+    .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .btn { background: var(--primary); color: white; border: none; padding: 7px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.82rem; }
+    .btn:hover { background: #1d4ed8; }
+    .btn-secondary { background: white; color: #334155; border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #f1f5f9; }
+    .btn-success { background: #059669; }
+    .btn-success:hover { background: #047857; }
+    .btn-warning { background: #d97706; }
+    .btn-warning:hover { background: #b45309; }
 
     .controls-panel {
-      background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px;
-      padding: 16px; margin-bottom: 24px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 16px; margin-bottom: 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
     }
-    .field-group { display: flex; flex-direction: column; gap: 4px; }
-    .field-group label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-    .field-group input, .field-group select {
-      padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: white;
-    }
+    .field-group { display: flex; flex-direction: column; gap: 3px; }
+    .field-group label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    .field-group input, .field-group select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
 
     .timeline-wrapper {
-      background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px;
-      overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative;
+      background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px;
+      overflow-x: auto; position: relative; flex-grow: 1; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-
     .timeline-table { display: flex; flex-direction: column; min-width: max-content; }
-    
+
     .header-row-months, .header-row-sub { display: flex; background: #f8fafc; }
     .header-row-months { border-bottom: 1px solid var(--border); }
     .header-row-sub { border-bottom: 2px solid var(--border); }
 
-    .header-label-col {
-      width: 270px; min-width: 270px; padding: 10px 16px; font-weight: 700;
-      font-size: 0.85rem; color: #475569; border-right: 1px solid var(--border); display: flex; align-items: center;
-    }
-    
-    .month-header-col {
-      width: calc(var(--half-col-width) * 2); min-width: calc(var(--half-col-width) * 2);
-      text-align: center; padding: 8px 0; font-size: 0.85rem; font-weight: 700; color: #1e293b;
-      border-right: 1px solid var(--border);
-    }
-    .sub-month-col {
-      width: var(--half-col-width); min-width: var(--half-col-width);
-      text-align: center; padding: 4px 0; font-size: 0.7rem; font-weight: 600; color: #94a3b8;
-      border-right: 1px solid var(--border);
-    }
+    .header-col-label { width: 260px; min-width: 260px; padding: 8px 12px; font-weight: 700; font-size: 0.85rem; color: #475569; border-right: 1px solid var(--border); display: flex; align-items: center; }
+    .col-month { width: calc(var(--step-w) * 2); min-width: calc(var(--step-w) * 2); text-align: center; padding: 8px 0; font-size: 0.82rem; font-weight: 700; color: #1e293b; border-right: 1px solid var(--border); }
+    .col-sub { width: var(--step-w); min-width: var(--step-w); text-align: center; padding: 4px 0; font-size: 0.68rem; font-weight: 600; color: #94a3b8; border-right: 1px solid var(--border); }
 
-    /* Piste de Jalons Principale */
-    .milestones-track-row {
-      display: flex; background: #fffdf5; border-bottom: 2px solid #fef08a; height: 50px; position: relative;
-    }
-    .milestones-track-label {
-      width: 270px; min-width: 270px; padding: 0 16px; font-weight: 700; font-size: 0.85rem;
-      color: #854d0e; border-right: 1px solid #fef08a; display: flex; align-items: center; justify-content: space-between;
-      background: #fef9c3; z-index: 2;
-    }
+    .milestone-track-row { display: flex; background: #fffdf5; border-bottom: 2px solid #fef08a; height: 48px; position: relative; }
+    .milestone-track-label { width: 260px; min-width: 260px; padding: 0 12px; font-weight: 700; font-size: 0.82rem; color: #854d0e; border-right: 1px solid #fef08a; display: flex; align-items: center; justify-content: space-between; background: #fef9c3; z-index: 2; }
 
-    .group-row {
-      background: #f1f5f9; border-bottom: 1px solid var(--border); display: flex; align-items: center;
-      justify-content: space-between; padding: 6px 16px; font-weight: 700; font-size: 0.9rem; color: #1e293b;
-    }
-    .group-name { border: 1px dashed transparent; padding: 2px 6px; border-radius: 4px; outline: none; }
-    .group-name:hover, .group-name:focus { border-color: var(--primary); background: white; }
-    .group-actions { display: flex; gap: 8px; align-items: center; }
-    .btn-mini { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600; color: #475569; }
+    .group-row { background: #f1f5f9; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 5px 12px; font-weight: 700; font-size: 0.85rem; color: #1e293b; }
+    .group-name { outline: none; border-bottom: 1px dashed transparent; }
+    .group-name:hover, .group-name:focus { border-color: var(--primary); }
+    .group-actions { display: flex; gap: 6px; }
+    .btn-mini { background: white; border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer; font-weight: 600; }
     .btn-mini:hover { background: #e2e8f0; }
 
-    .task-row { display: flex; border-bottom: 1px solid var(--border); height: var(--row-height); position: relative; }
-    .task-label-col {
-      width: 270px; min-width: 270px; padding: 0 12px; display: flex; align-items: center;
-      justify-content: space-between; border-right: 1px solid var(--border); background: #ffffff; z-index: 2;
-    }
-    .task-title {
-      font-size: 0.88rem; font-weight: 600; color: #334155; border: 1px dashed transparent;
-      padding: 3px 6px; border-radius: 4px; outline: none; width: 165px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .task-title:hover, .task-title:focus { border-color: var(--primary); background: #f8fafc; white-space: normal; }
+    .task-row { display: flex; border-bottom: 1px solid var(--border); height: var(--row-h); position: relative; }
+    .task-label-col { width: 260px; min-width: 260px; padding: 0 10px; display: flex; align-items: center; justify-content: space-between; border-right: 1px solid var(--border); background: #ffffff; z-index: 2; }
+    .task-title { font-size: 0.85rem; font-weight: 600; color: #334155; outline: none; border-bottom: 1px dashed transparent; width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-title:hover, .task-title:focus { border-color: var(--primary); white-space: normal; }
 
     .task-actions { display: flex; align-items: center; gap: 6px; }
-    .color-picker {
-      -webkit-appearance: none; -moz-appearance: none; appearance: none;
-      width: 20px; height: 20px; border: none; border-radius: 50%; cursor: pointer; background: none; padding: 0;
-    }
+    .color-picker { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border: none; border-radius: 50%; cursor: pointer; background: none; }
     .color-picker::-webkit-color-swatch-wrapper { padding: 0; }
-    .color-picker::-webkit-color-swatch { border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 0 2px rgba(0,0,0,0.4); }
-
-    .delete-btn { color: #94a3b8; cursor: pointer; font-size: 1.2rem; border: none; background: none; line-height: 1; padding: 0 4px; }
+    .color-picker::-webkit-color-swatch { border: 2px solid white; border-radius: 50%; box-shadow: 0 0 2px rgba(0,0,0,0.4); }
+    .delete-btn { color: #94a3b8; cursor: pointer; font-size: 1.1rem; border: none; background: none; }
     .delete-btn:hover { color: #ef4444; }
 
     .grid-container { display: flex; position: relative; flex-grow: 1; }
-    .grid-col {
-      width: var(--half-col-width); min-width: var(--half-col-width);
-      border-right: 1px dashed var(--border-sub); height: 100%; pointer-events: none;
-    }
-    .grid-col.month-boundary { border-right: 1px solid var(--border); }
+    .grid-col { width: var(--step-w); min-width: var(--step-w); border-right: 1px dashed var(--border-sub); height: 100%; pointer-events: none; }
+    .grid-col.month-end { border-right: 1px solid var(--border); }
 
-    /* Barres de tâches */
     .task-bar {
-      position: absolute; bottom: 8px; height: 32px; border-radius: 6px; color: white;
-      display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 600;
+      position: absolute; bottom: 8px; height: 30px; border-radius: 5px; color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 600;
       cursor: grab; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.12);
     }
     .task-bar:active { cursor: grabbing; }
 
-    .bar-text-inside {
-      width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      outline: none; border: 1px dashed transparent; border-radius: 4px; padding: 2px 6px;
-      cursor: text; user-select: text;
-    }
-    .bar-text-inside:hover { border-color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.1); }
-    .bar-text-inside:focus { border-color: #ffffff; background: rgba(0,0,0,0.25); white-space: normal; }
-
-    /* Bulle callout si la phase ne dure que 2 semaines */
+    .bar-text { width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; outline: none; cursor: text; user-select: text; padding: 0 6px; }
+    
+    /* Bulle si phase courte (2 semaines) */
     .callout-bubble {
-      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
-      background: #1e293b; color: #ffffff; font-size: 0.75rem; font-weight: 600;
-      padding: 3px 8px; border-radius: 5px; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-      z-index: 5; pointer-events: auto; cursor: text; user-select: text; outline: none; border: 1px dashed transparent;
+      position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; color: #ffffff; font-size: 0.72rem; font-weight: 600;
+      padding: 2px 6px; border-radius: 4px; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 5; cursor: text; user-select: text; outline: none;
     }
-    .callout-bubble:hover, .callout-bubble:focus { border-color: var(--primary); background: #0f172a; }
     .callout-bubble::after {
       content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-      border-width: 5px; border-style: solid; border-color: #1e293b transparent transparent transparent;
+      border-width: 4px; border-style: solid; border-color: #1e293b transparent transparent transparent;
     }
 
-    .resize-handle { position: absolute; top: 0; bottom: 0; width: 8px; cursor: ew-resize; z-index: 3; }
-    .resize-left { left: 0; border-radius: 6px 0 0 6px; }
-    .resize-right { right: 0; border-radius: 0 6px 6px 0; }
-    .resize-handle:hover { background: rgba(0,0,0,0.25); }
+    .resize-handle { position: absolute; top: 0; bottom: 0; width: 7px; cursor: ew-resize; z-index: 3; }
+    .resize-left { left: 0; }
+    .resize-right { right: 0; }
 
-    /* Composant Jalon universel */
-    .milestone-marker {
-      position: absolute; top: 6px; transform: translateX(-50%); display: flex; flex-direction: column;
-      align-items: center; cursor: grab; z-index: 6; user-select: none;
-    }
+    /* Jalons */
+    .milestone-marker { position: absolute; top: 5px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; cursor: grab; z-index: 6; user-select: none; }
     .milestone-marker:active { cursor: grabbing; }
+    .milestone-icon { font-size: 1.2rem; cursor: pointer; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2)); }
+    .milestone-tag {
+      font-size: 0.68rem; font-weight: 700; color: #78350f; background: #ffffff; padding: 1px 4px;
+      border-radius: 3px; border: 1px solid #fde68a; margin-top: 2px; outline: none; white-space: nowrap; display: flex; align-items: center; gap: 3px;
+    }
+    .ms-del { color: #cbd5e1; cursor: pointer; font-size: 0.75rem; }
+    .ms-del:hover { color: #ef4444; }
 
-    .milestone-symbol-badge {
-      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
-      line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); cursor: pointer;
-      position: relative;
+    .palette-menu {
+      position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: white;
+      border: 1px solid var(--border); box-shadow: 0 6px 12px rgba(0,0,0,0.15); border-radius: 6px; padding: 4px;
+      display: none; gap: 4px; z-index: 50;
     }
-    .milestone-symbol-badge:hover { transform: scale(1.15); transition: transform 0.15s; }
+    .palette-menu.show { display: flex; }
+    .palette-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 2px; }
+    .palette-btn:hover { background: #f1f5f9; border-radius: 3px; }
 
-    .milestone-bubble {
-      font-size: 0.72rem; font-weight: 700; color: #78350f; white-space: nowrap; background: #ffffff;
-      padding: 2px 6px; border-radius: 4px; border: 1px solid #fde68a; margin-top: 3px; outline: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 4px;
+    /* Pied de page et droits d'auteur */
+    footer {
+      margin-top: auto; padding: 16px; border-top: 1px solid var(--border); display: flex;
+      justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.82rem; color: var(--muted);
     }
-    .milestone-bubble:focus { border-color: var(--primary); }
-
-    .ms-delete-icon {
-      color: #cbd5e1; font-size: 0.8rem; cursor: pointer; margin-left: 2px;
+    .footer-author strong { color: var(--text); }
+    .btn-donate {
+      background: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px;
+      font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; text-decoration: none;
     }
-    .ms-delete-icon:hover { color: #ef4444; }
-
-    /* Palette popover pour choisir l'icône du jalon */
-    .icon-palette {
-      position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
-      background: white; border: 1px solid var(--border); box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-      border-radius: 8px; padding: 6px; display: none; gap: 6px; z-index: 100;
-    }
-    .icon-palette.active { display: flex; }
-    .palette-btn {
-      font-size: 1.2rem; background: none; border: 1px solid transparent; border-radius: 4px;
-      cursor: pointer; padding: 4px; line-height: 1;
-    }
-    .palette-btn:hover { background: #f1f5f9; border-color: #cbd5e1; transform: scale(1.1); }
+    .btn-donate:hover { background: #d97706; }
 
     @media print {
       body { padding: 0; background: white; }
-      .controls-panel, .toolbar, .delete-btn, .task-actions, .group-actions, .ms-delete-icon { display: none !important; }
-      .timeline-wrapper { border: none; box-shadow: none; }
-      .header-label-col, .task-label-col, .milestones-track-label { width: 200px; min-width: 200px; }
+      .controls-panel, .toolbar, .delete-btn, .task-actions, .group-actions, footer { display: none !important; }
+      .timeline-wrapper { border: none; box-shadow: none; margin-bottom: 0; }
+      .header-col-label, .task-label-col, .milestone-track-label { width: 190px; min-width: 190px; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="editable-title" contenteditable="true" id="projectTitle" onblur="updateTitle(this.innerText)">
+    <div class="project-title" contenteditable="true" id="projectTitle" onblur="updateTitle(this.innerText)">
       Planning Chronologique Stratégique
     </div>
     <div class="toolbar">
@@ -239,7 +176,7 @@
         <option value="18">18 mois</option>
       </select>
     </div>
-    <div style="display: flex; gap: 10px; margin-left: auto;">
+    <div style="display: flex; gap: 8px; margin-left: auto;">
       <button class="btn btn-warning" onclick="addMilestonePrompt()">📍 Ajouter un jalon</button>
       <button class="btn btn-secondary" onclick="addGroupPrompt()">📁 Nouvelle famille</button>
       <button class="btn btn-success" onclick="addTaskPrompt()">➕ Ajouter une phase</button>
@@ -250,29 +187,38 @@
     <div class="timeline-table" id="timelineTable"></div>
   </div>
 
+  <footer>
+    <div class="footer-author">
+      Outil créé par <strong>Pierre HENRY</strong> — Tous droits réservés
+    </div>
+    <div>
+      <button class="btn-donate" onclick="openDonateInfo()">☕ Faire un don</button>
+    </div>
+  </footer>
+
   <script>
-    const AVAILABLE_ICONS = ["💎", "🚩", "⭐", "🎯", "⚠️", "🏆", "🔑", "📌"];
+    const ICONS = ["💎", "🚩", "⭐", "🎯", "⚠️", "🏆", "🔑", "📌"];
 
     let state = {
       projectTitle: "Planning Chronologique Stratégique",
       startMonth: "2026-10",
       durationMonths: 12,
       milestones: [
-        { id: "m1", name: "Comité de Cadrage", step: 1, icon: "🚩" },
+        { id: "m1", name: "Lancement", step: 1, icon: "🚩" },
         { id: "m2", name: "Validation APS", step: 6, icon: "💎" },
-        { id: "m3", name: "Livraison & Clés", step: 21, icon: "🔑" }
+        { id: "m3", name: "Livraison", step: 21, icon: "🔑" }
       ],
       groups: ["1. Conception & Études", "2. Travaux & Réalisation", "3. Déploiement & Clôture"],
       tasks: [
-        { id: "t1", name: "Cadrage initial", group: "1. Conception & Études", start: 0, duration: 1, color: "#2563eb" }, // 2 sem -> bulle
+        { id: "t1", name: "Cadrage initial", group: "1. Conception & Études", start: 0, duration: 1, color: "#2563eb" },
         { id: "t2", name: "Spécifications & Plans", group: "1. Conception & Études", start: 2, duration: 4, color: "#4f46e5" },
         { id: "t3", name: "Passation des marchés", group: "2. Travaux & Réalisation", start: 6, duration: 3, color: "#0891b2" },
-        { id: "t4", name: "Fournitures critiques", group: "2. Travaux & Réalisation", start: 9, duration: 1, color: "#ea580c" }, // 2 sem -> bulle
-        { id: "t5", name: "Chantier & Aménagements", group: "2. Travaux & Réalisation", start: 10, duration: 9, color: "#059669" }
+        { id: "t4", name: "Fournitures critiques", group: "2. Travaux & Réalisation", start: 9, duration: 1, color: "#ea580c" },
+        { id: "t5", name: "Chantier & Travaux", group: "2. Travaux & Réalisation", start: 10, duration: 9, color: "#059669" }
       ]
     };
 
-    const HALF_WIDTH = 46;
+    const STEP_W = 48;
 
     function render() {
       document.getElementById('projectTitle').innerText = state.projectTitle;
@@ -283,450 +229,350 @@
       const container = document.getElementById('timelineTable');
       container.innerHTML = '';
 
-      // 1. Entête Ligne 1 : Mois
-      const headerRowMonths = document.createElement('div');
-      headerRowMonths.className = 'header-row-months';
-
-      const labelCol1 = document.createElement('div');
-      labelCol1.className = 'header-label-col';
-      labelCol1.innerText = 'Phases';
-      headerRowMonths.appendChild(labelCol1);
+      // 1. Entête Mois
+      const hRow1 = document.createElement('div');
+      hRow1.className = 'header-row-months';
+      hRow1.innerHTML = `<div class="header-col-label">Phases</div>`;
 
       const [startYear, startM] = state.startMonth.split('-').map(Number);
       for (let i = 0; i < state.durationMonths; i++) {
         const d = new Date(startYear, (startM - 1) + i, 1);
         const col = document.createElement('div');
-        col.className = 'month-header-col';
+        col.className = 'col-month';
         col.innerText = d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' }).toUpperCase();
-        headerRowMonths.appendChild(col);
+        hRow1.appendChild(col);
       }
-      container.appendChild(headerRowMonths);
+      container.appendChild(hRow1);
 
-      // 2. Entête Ligne 2 : Quinzaines (2 semaines)
-      const headerRowSub = document.createElement('div');
-      headerRowSub.className = 'header-row-sub';
-
-      const labelCol2 = document.createElement('div');
-      labelCol2.className = 'header-label-col';
-      labelCol2.innerText = 'Échelle Quinzaine (2 sem.)';
-      headerRowSub.appendChild(labelCol2);
+      // 2. Entête Demi-mois
+      const hRow2 = document.createElement('div');
+      hRow2.className = 'header-row-sub';
+      hRow2.innerHTML = `<div class="header-col-label">Quinzaines (2 sem.)</div>`;
 
       for (let i = 0; i < state.durationMonths; i++) {
-        const q1 = document.createElement('div');
-        q1.className = 'sub-month-col';
-        q1.innerText = '1-15';
-        headerRowSub.appendChild(q1);
-
-        const q2 = document.createElement('div');
-        q2.className = 'sub-month-col';
-        q2.innerText = '16-30';
-        headerRowSub.appendChild(q2);
+        hRow2.innerHTML += `<div class="col-sub">1-15</div><div class="col-sub">16-30</div>`;
       }
-      container.appendChild(headerRowSub);
+      container.appendChild(hRow2);
 
-      // 3. Piste des Jalons Clés
-      const trackRow = document.createElement('div');
-      trackRow.className = 'milestones-track-row';
+      // 3. Piste des Jalons
+      const mRow = document.createElement('div');
+      mRow.className = 'milestone-track-row';
+      mRow.innerHTML = `<div class="milestone-track-label"><span>📍 Jalons & Comités</span><button class="btn-mini" onclick="addMilestonePrompt()">➕ Jalon</button></div>`;
 
-      const trackLabel = document.createElement('div');
-      trackLabel.className = 'milestones-track-label';
-      trackLabel.innerHTML = `<span>📍 Jalons & Comités</span><button class="btn-mini" onclick="addMilestonePrompt()">➕ Jalon</button>`;
-      trackRow.appendChild(trackLabel);
-
-      const trackGrid = document.createElement('div');
-      trackGrid.className = 'grid-container';
-
+      const mGrid = document.createElement('div');
+      mGrid.className = 'grid-container';
       for (let s = 0; s < totalSteps; s++) {
         const gc = document.createElement('div');
-        gc.className = 'grid-col' + (s % 2 === 1 ? ' month-boundary' : '');
-        trackGrid.appendChild(gc);
+        gc.className = 'grid-col' + (s % 2 === 1 ? ' month-end' : '');
+        mGrid.appendChild(gc);
       }
 
-      // Placement des jalons
       state.milestones.forEach(ms => {
-        const marker = createMilestoneElement(ms, totalSteps);
-        trackGrid.appendChild(marker);
-      });
+        const el = document.createElement('div');
+        el.className = 'milestone-marker';
+        el.id = `ms-${ms.id}`;
+        el.style.left = ((ms.step + 0.5) * STEP_W) + 'px';
 
-      trackRow.appendChild(trackGrid);
-      container.appendChild(trackRow);
+        const iconEl = document.createElement('span');
+        iconEl.className = 'milestone-icon';
+        iconEl.innerText = ms.icon || '💎';
+
+        const menu = document.createElement('div');
+        menu.className = 'palette-menu';
+        ICONS.forEach(ic => {
+          const b = document.createElement('button');
+          b.className = 'palette-btn';
+          b.innerText = ic;
+          b.onclick = (e) => { e.stopPropagation(); ms.icon = ic; render(); };
+          menu.appendChild(b);
+        });
+
+        iconEl.onclick = (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.palette-menu').forEach(p => { if (p !== menu) p.classList.remove('show'); });
+          menu.classList.toggle('show');
+        };
+        el.appendChild(iconEl);
+        el.appendChild(menu);
+
+        const tag = document.createElement('div');
+        tag.className = 'milestone-tag';
+
+        const txt = document.createElement('span');
+        txt.contentEditable = "true";
+        txt.innerText = ms.name;
+        txt.onmousedown = (e) => e.stopPropagation();
+        txt.onblur = (e) => { ms.name = e.target.innerText.trim() || "Jalon"; };
+
+        const del = document.createElement('span');
+        del.className = 'ms-del';
+        del.innerHTML = '&times;';
+        del.onclick = (e) => { e.stopPropagation(); deleteMilestone(ms.id); };
+
+        tag.appendChild(txt);
+        tag.appendChild(del);
+        el.appendChild(tag);
+
+        el.onmousedown = (e) => initMilestoneDrag(e, ms, totalSteps);
+        mGrid.appendChild(el);
+      });
+      mRow.appendChild(mGrid);
+      container.appendChild(mRow);
 
       // 4. Lignes des Groupes et Phases
       state.groups.forEach((groupName) => {
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'group-row';
-        groupHeader.innerHTML = `
-          <div class="group-name" contenteditable="true" onblur="renameGroup('${groupName}', this.innerText)">
-            ${groupName}
-          </div>
+        const gRow = document.createElement('div');
+        gRow.className = 'group-row';
+        gRow.innerHTML = `
+          <div class="group-name" contenteditable="true" onblur="renameGroup('${groupName}', this.innerText)">${groupName}</div>
           <div class="group-actions">
             <button class="btn-mini" onclick="addTaskToGroup('${groupName}')">➕ Phase</button>
             <button class="btn-mini" onclick="deleteGroup('${groupName}')" style="color:#ef4444;">Supprimer</button>
           </div>
         `;
-        container.appendChild(groupHeader);
+        container.appendChild(gRow);
 
         const groupTasks = state.tasks.filter(t => t.group === groupName);
-
         groupTasks.forEach(task => {
-          const row = document.createElement('div');
-          row.className = 'task-row';
+          const tRow = document.createElement('div');
+          tRow.className = 'task-row';
 
-          const titleCol = document.createElement('div');
-          titleCol.className = 'task-label-col';
+          const tLabel = document.createElement('div');
+          tLabel.className = 'task-label-col';
 
-          const titleSpan = document.createElement('div');
-          titleSpan.className = 'task-title';
-          titleSpan.contentEditable = "true";
-          titleSpan.innerText = task.name;
-          titleSpan.onblur = (e) => updateTaskName(task.id, e.target.innerText);
+          const tTitle = document.createElement('div');
+          tTitle.className = 'task-title';
+          tTitle.contentEditable = "true";
+          tTitle.innerText = task.name;
+          tTitle.onblur = (e) => updateTaskName(task.id, e.target.innerText);
 
-          const actionsWrap = document.createElement('div');
-          actionsWrap.className = 'task-actions';
+          const actions = document.createElement('div');
+          actions.className = 'task-actions';
 
           const colorInput = document.createElement('input');
           colorInput.type = 'color';
           colorInput.className = 'color-picker';
           colorInput.value = task.color || '#2563eb';
-          colorInput.title = 'Modifier la couleur';
           colorInput.oninput = (e) => updateTaskColor(task.id, e.target.value);
 
           const delBtn = document.createElement('button');
           delBtn.className = 'delete-btn';
           delBtn.innerHTML = '&times;';
-          delBtn.title = 'Supprimer cette phase';
           delBtn.onclick = () => deleteTask(task.id);
 
-          actionsWrap.appendChild(colorInput);
-          actionsWrap.appendChild(delBtn);
-          titleCol.appendChild(titleSpan);
-          titleCol.appendChild(actionsWrap);
-          row.appendChild(titleCol);
+          actions.appendChild(colorInput);
+          actions.appendChild(delBtn);
+          tLabel.appendChild(tTitle);
+          tLabel.appendChild(actions);
+          tRow.appendChild(tLabel);
 
-          const gridWrap = document.createElement('div');
-          gridWrap.className = 'grid-container';
+          const tGrid = document.createElement('div');
+          tGrid.className = 'grid-container';
 
-          for (let step = 0; step < totalSteps; step++) {
-            const gridCol = document.createElement('div');
-            gridCol.className = 'grid-col' + (step % 2 === 1 ? ' month-boundary' : '');
-            gridWrap.appendChild(gridCol);
+          for (let s = 0; s < totalSteps; s++) {
+            const gc = document.createElement('div');
+            gc.className = 'grid-col' + (s % 2 === 1 ? ' month-end' : '');
+            tGrid.appendChild(gc);
           }
 
-          // Barre
           const bar = document.createElement('div');
           bar.className = 'task-bar';
           bar.id = `bar-${task.id}`;
           bar.style.backgroundColor = task.color || '#2563eb';
-          bar.style.left = (task.start * HALF_WIDTH) + 'px';
-          bar.style.width = (task.duration * HALF_WIDTH) + 'px';
+          bar.style.left = (task.start * STEP_W) + 'px';
+          bar.style.width = (task.duration * STEP_W) + 'px';
 
-          // Traitement durée courte (bulle callout) vs normale
           if (task.duration <= 1) {
-            const callout = document.createElement('div');
-            callout.className = 'callout-bubble';
-            callout.contentEditable = "true";
-            callout.innerText = task.name;
-            callout.addEventListener('mousedown', (e) => e.stopPropagation());
-            callout.addEventListener('blur', (e) => updateTaskName(task.id, e.target.innerText));
-            bar.appendChild(callout);
+            const bubble = document.createElement('div');
+            bubble.className = 'callout-bubble';
+            bubble.contentEditable = "true";
+            bubble.innerText = task.name;
+            bubble.onmousedown = (e) => e.stopPropagation();
+            bubble.onblur = (e) => updateTaskName(task.id, e.target.innerText);
+            bar.appendChild(bubble);
           } else {
-            const barText = document.createElement('div');
-            barText.className = 'bar-text-inside';
-            barText.contentEditable = "true";
-            barText.innerText = task.name;
-            barText.addEventListener('mousedown', (e) => e.stopPropagation());
-            barText.addEventListener('blur', (e) => updateTaskName(task.id, e.target.innerText));
-            bar.appendChild(barText);
+            const inside = document.createElement('div');
+            inside.className = 'bar-text';
+            inside.contentEditable = "true";
+            inside.innerText = task.name;
+            inside.onmousedown = (e) => e.stopPropagation();
+            inside.onblur = (e) => updateTaskName(task.id, e.target.innerText);
+            bar.appendChild(inside);
           }
 
           const hl = document.createElement('div');
           hl.className = 'resize-handle resize-left';
-          hl.addEventListener('mousedown', (e) => initResize(e, task, 'left', totalSteps));
+          hl.onmousedown = (e) => initResize(e, task, 'left', totalSteps);
 
           const hr = document.createElement('div');
           hr.className = 'resize-handle resize-right';
-          hr.addEventListener('mousedown', (e) => initResize(e, task, 'right', totalSteps));
+          hr.onmousedown = (e) => initResize(e, task, 'right', totalSteps);
 
           bar.appendChild(hl);
           bar.appendChild(hr);
-          bar.addEventListener('mousedown', (e) => initDrag(e, task, totalSteps));
+          bar.onmousedown = (e) => initDrag(e, task, totalSteps);
 
-          gridWrap.appendChild(bar);
-          row.appendChild(gridWrap);
-          container.appendChild(row);
+          tGrid.appendChild(bar);
+          tRow.appendChild(tGrid);
+          container.appendChild(tRow);
         });
       });
     }
 
-    // Création du composant Jalon avec sélecteur de symbole et suppression
-    function createMilestoneElement(ms, totalSteps) {
-      const el = document.createElement('div');
-      el.className = 'milestone-marker';
-      el.id = `ms-${ms.id}`;
-      el.style.left = ((ms.step + 0.5) * HALF_WIDTH) + 'px';
-
-      // Badge du symbole
-      const badge = document.createElement('div');
-      badge.className = 'milestone-symbol-badge';
-      badge.innerText = ms.icon || '💎';
-      badge.title = 'Cliquer pour changer le symbole / Glisser pour déplacer';
-
-      // Menu popover de sélection du symbole
-      const palette = document.createElement('div');
-      palette.className = 'icon-palette';
-      AVAILABLE_ICONS.forEach(ic => {
-        const btn = document.createElement('button');
-        btn.className = 'palette-btn';
-        btn.innerText = ic;
-        btn.onclick = (e) => {
-          e.stopPropagation();
-          changeMilestoneIcon(ms.id, ic);
-        };
-        palette.appendChild(btn);
-      });
-
-      badge.onclick = (e) => {
-        e.stopPropagation();
-        document.querySelectorAll('.icon-palette').forEach(p => { if (p !== palette) p.classList.remove('active'); });
-        palette.classList.toggle('active');
-      };
-
-      badge.appendChild(palette);
-
-      // Étiquette texte + bouton de suppression direct
-      const bubble = document.createElement('div');
-      bubble.className = 'milestone-bubble';
-
-      const labelText = document.createElement('span');
-      labelText.contentEditable = "true";
-      labelText.innerText = ms.name;
-      labelText.addEventListener('mousedown', (e) => e.stopPropagation());
-      labelText.onblur = (e) => updateMilestoneName(ms.id, e.target.innerText);
-
-      const delBtn = document.createElement('span');
-      delBtn.className = 'ms-delete-icon';
-      delBtn.innerHTML = '&times;';
-      delBtn.title = 'Supprimer ce jalon';
-      delBtn.onclick = (e) => {
-        e.stopPropagation();
-        deleteMilestone(ms.id);
-      };
-
-      bubble.appendChild(labelText);
-      bubble.appendChild(delBtn);
-
-      el.appendChild(badge);
-      el.appendChild(bubble);
-
-      // Événement de déplacement à la souris
-      el.addEventListener('mousedown', (e) => initMilestoneDrag(e, ms, totalSteps));
-
-      return el;
-    }
-
-    // Glisser-déposer de jalon
-    function initMilestoneDrag(e, ms, totalSteps) {
-      if (e.target.isContentEditable || e.target.classList.contains('palette-btn') || e.target.classList.contains('ms-delete-icon')) return;
+    // Déplacement de phase
+    function initDrag(e, task, totalSteps) {
+      if (e.target.classList.contains('resize-handle') || e.target.isContentEditable) return;
       e.preventDefault();
       const startX = e.clientX;
-      const initialStep = ms.step;
+      const initStart = task.start;
 
-      function onMouseMove(moveEvent) {
-        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
-        let newStep = initialStep + delta;
-        if (newStep < 0) newStep = 0;
-        if (newStep >= totalSteps) newStep = totalSteps - 1;
-
-        ms.step = newStep;
-        const marker = document.getElementById(`ms-${ms.id}`);
-        if (marker) marker.style.left = ((newStep + 0.5) * HALF_WIDTH) + 'px';
+      function onMouseMove(me) {
+        const delta = Math.round((me.clientX - startX) / STEP_W);
+        let ns = initStart + delta;
+        if (ns < 0) ns = 0;
+        if (ns + task.duration > totalSteps) ns = totalSteps - task.duration;
+        task.start = ns;
+        const el = document.getElementById(`bar-${task.id}`);
+        if (el) el.style.left = (ns * STEP_W) + 'px';
       }
-
       function onMouseUp() {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
         render();
       }
-
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     }
 
-    function changeMilestoneIcon(id, newIcon) {
-      const ms = state.milestones.find(m => m.id === id);
-      if (ms) {
-        ms.icon = newIcon;
+    // Redimensionnement
+    function initResize(e, task, dir, totalSteps) {
+      e.stopPropagation();
+      e.preventDefault();
+      const startX = e.clientX;
+      const initStart = task.start;
+      const initDur = task.duration;
+
+      function onMouseMove(me) {
+        const delta = Math.round((me.clientX - startX) / STEP_W);
+        if (dir === 'right') {
+          let nd = initDur + delta;
+          if (nd < 1) nd = 1;
+          if (task.start + nd > totalSteps) nd = totalSteps - task.start;
+          task.duration = nd;
+        } else {
+          let ns = initStart + delta;
+          let nd = initDur - delta;
+          if (ns < 0) { ns = 0; nd = initStart + initDur; }
+          if (nd < 1) { nd = 1; ns = initStart + initDur - 1; }
+          task.start = ns;
+          task.duration = nd;
+        }
+        const el = document.getElementById(`bar-${task.id}`);
+        if (el) {
+          el.style.left = (task.start * STEP_W) + 'px';
+          el.style.width = (task.duration * STEP_W) + 'px';
+        }
+      }
+      function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
         render();
       }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
     }
 
+    // Déplacement de jalon
+    function initMilestoneDrag(e, ms, totalSteps) {
+      if (e.target.isContentEditable || e.target.classList.contains('palette-btn') || e.target.classList.contains('ms-del')) return;
+      e.preventDefault();
+      const startX = e.clientX;
+      const initStep = ms.step;
+
+      function onMouseMove(me) {
+        const delta = Math.round((me.clientX - startX) / STEP_W);
+        let ns = initStep + delta;
+        if (ns < 0) ns = 0;
+        if (ns >= totalSteps) ns = totalSteps - 1;
+        ms.step = ns;
+        const el = document.getElementById(`ms-${ms.id}`);
+        if (el) el.style.left = ((ns + 0.5) * STEP_W) + 'px';
+      }
+      function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        render();
+      }
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    // Fonctions d'état et mise à jour
+    function updateTitle(val) { state.projectTitle = val.trim() || "Planning Projet"; }
+    function updateSettings() {
+      state.startMonth = document.getElementById('startMonth').value;
+      state.durationMonths = parseInt(document.getElementById('durationMonths').value, 10);
+      render();
+    }
+    function updateTaskName(id, val) {
+      const t = state.tasks.find(x => x.id === id);
+      if (t) { t.name = val.trim() || "Phase"; render(); }
+    }
+    function updateTaskColor(id, col) {
+      const t = state.tasks.find(x => x.id === id);
+      if (t) { t.color = col; const el = document.getElementById(`bar-${id}`); if (el) el.style.backgroundColor = col; }
+    }
+    function addMilestonePrompt() {
+      const n = prompt("Nom du jalon :", "Comité de Pilotage");
+      if (!n) return;
+      state.milestones.push({ id: 'ms_' + Date.now(), name: n.trim(), step: 2, icon: "💎" });
+      render();
+    }
     function deleteMilestone(id) {
       if (confirm("Supprimer ce jalon ?")) {
         state.milestones = state.milestones.filter(m => m.id !== id);
         render();
       }
     }
-
-    function addMilestonePrompt() {
-      const name = prompt("Intitulé du nouveau jalon :", "Nouveau jalon");
-      if (!name) return;
-      state.milestones.push({
-        id: 'ms_' + Date.now(),
-        name: name.trim(),
-        step: 2,
-        icon: "💎"
-      });
-      render();
-    }
-
-    function updateMilestoneName(id, newName) {
-      const ms = state.milestones.find(m => m.id === id);
-      if (ms) ms.name = newName.trim() || "Jalon";
-    }
-
-    // Gestion Drag & Resize des phases
-    function initDrag(e, task, totalSteps) {
-      if (e.target.classList.contains('resize-handle') || e.target.isContentEditable) return;
-      e.preventDefault();
-      const startX = e.clientX;
-      const initialStart = task.start;
-
-      function onMouseMove(moveEvent) {
-        const deltaSteps = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
-        let newStart = initialStart + deltaSteps;
-        if (newStart < 0) newStart = 0;
-        if (newStart + task.duration > totalSteps) newStart = totalSteps - task.duration;
-
-        task.start = newStart;
-        const el = document.getElementById(`bar-${task.id}`);
-        if (el) el.style.left = (newStart * HALF_WIDTH) + 'px';
-      }
-
-      function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        render();
-      }
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    }
-
-    function initResize(e, task, direction, totalSteps) {
-      e.stopPropagation();
-      e.preventDefault();
-      const startX = e.clientX;
-      const initialStart = task.start;
-      const initialDuration = task.duration;
-
-      function onMouseMove(moveEvent) {
-        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
-
-        if (direction === 'right') {
-          let newDuration = initialDuration + delta;
-          if (newDuration < 1) newDuration = 1;
-          if (task.start + newDuration > totalSteps) newDuration = totalSteps - task.start;
-          task.duration = newDuration;
-        } else {
-          let newStart = initialStart + delta;
-          let newDuration = initialDuration - delta;
-          if (newStart < 0) { newStart = 0; newDuration = initialStart + initialDuration; }
-          if (newDuration < 1) { newDuration = 1; newStart = initialStart + initialDuration - 1; }
-          task.start = newStart;
-          task.duration = newDuration;
-        }
-
-        const el = document.getElementById(`bar-${task.id}`);
-        if (el) {
-          el.style.left = (task.start * HALF_WIDTH) + 'px';
-          el.style.width = (task.duration * HALF_WIDTH) + 'px';
-        }
-      }
-
-      function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        render();
-      }
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    }
-
-    function updateTitle(newTitle) { state.projectTitle = newTitle.trim() || "Planning Projet"; }
-
-    function updateSettings() {
-      state.startMonth = document.getElementById('startMonth').value;
-      state.durationMonths = parseInt(document.getElementById('durationMonths').value, 10);
-      render();
-    }
-
-    function updateTaskName(id, newName) {
-      const task = state.tasks.find(t => t.id === id);
-      if (task) {
-        task.name = newName.trim() || "Phase";
-        render();
-      }
-    }
-
-    function updateTaskColor(id, newColor) {
-      const task = state.tasks.find(t => t.id === id);
-      if (task) {
-        task.color = newColor;
-        const el = document.getElementById(`bar-${id}`);
-        if (el) el.style.backgroundColor = newColor;
-      }
-    }
-
     function addGroupPrompt() {
-      const name = prompt("Nom de la nouvelle famille :", "Nouvelle famille");
-      if (name && !state.groups.includes(name.trim())) {
-        state.groups.push(name.trim());
+      const n = prompt("Nom de la famille :", "Nouvelle famille");
+      if (n && !state.groups.includes(n.trim())) { state.groups.push(n.trim()); render(); }
+    }
+    function renameGroup(oldN, newN) {
+      const tr = newN.trim();
+      if (!tr || tr === oldN) return;
+      const idx = state.groups.indexOf(oldN);
+      if (idx !== -1) {
+        state.groups[idx] = tr;
+        state.tasks.forEach(t => { if (t.group === oldN) t.group = tr; });
         render();
       }
     }
-
-    function renameGroup(oldName, newName) {
-      const trimmed = newName.trim();
-      if (!trimmed || trimmed === oldName) return;
-      const index = state.groups.indexOf(oldName);
-      if (index !== -1) {
-        state.groups[index] = trimmed;
-        state.tasks.forEach(t => { if (t.group === oldName) t.group = trimmed; });
+    function deleteGroup(gName) {
+      if (confirm(`Supprimer la famille "${gName}" et ses phases associées ?`)) {
+        state.groups = state.groups.filter(g => g !== gName);
+        state.tasks = state.tasks.filter(t => t.group !== gName);
         render();
       }
     }
-
-    function deleteGroup(groupName) {
-      if (confirm(`Supprimer la famille "${groupName}" et ses phases ?`)) {
-        state.groups = state.groups.filter(g => g !== groupName);
-        state.tasks = state.tasks.filter(t => t.group !== groupName);
-        render();
-      }
-    }
-
     function addTaskPrompt() {
-      if (state.groups.length === 0) { alert("Veuillez d'abord créer une famille."); return; }
+      if (state.groups.length === 0) { alert("Veuillez créer une famille d'abord."); return; }
       addTaskToGroup(state.groups[0]);
     }
-
-    function addTaskToGroup(groupName) {
-      const name = prompt(`Nom de la phase pour "${groupName}" :`, "Nouvelle phase");
-      if (!name) return;
+    function addTaskToGroup(gName) {
+      const n = prompt(`Nom de la phase pour "${gName}" :`, "Nouvelle phase");
+      if (!n) return;
       const colors = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#4f46e5'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
       state.tasks.push({
         id: 't_' + Date.now(),
-        name: name.trim(),
-        group: groupName,
+        name: n.trim(),
+        group: gName,
         start: 0,
         duration: 1,
-        color: randomColor
+        color: colors[Math.floor(Math.random() * colors.length)]
       });
       render();
     }
-
     function deleteTask(id) {
       if (confirm("Supprimer cette phase ?")) {
         state.tasks = state.tasks.filter(t => t.id !== id);
@@ -734,6 +580,12 @@
       }
     }
 
+    // Gestion des Dons
+    function openDonateInfo() {
+      alert("Merci pour votre soutien !\n\nOutil développé par Pierre HENRY.\nPour effectuer un don ou soutenir l'évolution de l'outil, contactez directement l'auteur ou insérez votre lien PayPal / Buy Me A Coffee.");
+    }
+
+    // Import / Export JSON
     function exportJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
       const a = document.createElement('a');
@@ -744,30 +596,25 @@
       a.remove();
     }
 
-    function importJSON(event) {
-      const file = event.target.files[0];
+    function importJSON(e) {
+      const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function(evt) {
         try {
-          const parsed = JSON.parse(e.target.result);
+          const parsed = JSON.parse(evt.target.result);
           if (parsed && parsed.tasks) {
             state = parsed;
             if (!state.milestones) state.milestones = [];
             render();
-          } else {
-            alert("Format JSON non valide.");
-          }
-        } catch (err) {
-          alert("Erreur lors de la lecture du fichier JSON.");
-        }
+          } else { alert("Fichier JSON non reconnu."); }
+        } catch (err) { alert("Erreur lors de la lecture du fichier JSON."); }
       };
       reader.readAsText(file);
     }
 
-    // Fermeture des palettes si clic à l'extérieur
     document.addEventListener('click', () => {
-      document.querySelectorAll('.icon-palette').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.palette-menu').forEach(p => p.classList.remove('show'));
     });
 
     window.onload = render;
