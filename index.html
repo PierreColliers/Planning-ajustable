@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Planning Chronologique Interactif</title>
+  <!-- Bibliothèque de capture graphique haute résolution -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --primary: #2563eb;
@@ -25,7 +27,7 @@
     .project-title:hover, .project-title:focus { border-color: var(--primary); background: #ffffff; border-radius: 4px; }
 
     .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .btn { background: var(--primary); color: white; border: none; padding: 7px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.82rem; }
+    .btn { background: var(--primary); color: white; border: none; padding: 7px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 5px; }
     .btn:hover { background: #1d4ed8; }
     .btn-secondary { background: white; color: #334155; border: 1px solid var(--border); }
     .btn-secondary:hover { background: #f1f5f9; }
@@ -33,6 +35,8 @@
     .btn-success:hover { background: #047857; }
     .btn-warning { background: #d97706; }
     .btn-warning:hover { background: #b45309; }
+    .btn-ppt { background: #d24726; color: white; } /* Couleur PowerPoint officielle */
+    .btn-ppt:hover { background: #b73a1d; }
 
     .controls-panel {
       background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px;
@@ -42,11 +46,19 @@
     .field-group label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
     .field-group input, .field-group select { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
 
+    /* Zone capturée pour le rendu PPT / Image */
+    #exportContainer {
+      background: #ffffff; padding: 10px; border-radius: 8px;
+    }
+    .export-header {
+      display: none; padding: 8px 12px 16px 12px; font-size: 1.4rem; font-weight: 800; color: #1e3a8a;
+    }
+
     .timeline-wrapper {
       background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px;
       overflow-x: auto; position: relative; flex-grow: 1; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .timeline-table { display: flex; flex-direction: column; min-width: max-content; }
+    .timeline-table { display: flex; flex-direction: column; min-width: max-content; background: white; }
 
     .header-row-months, .header-row-sub { display: flex; background: #f8fafc; }
     .header-row-months { border-bottom: 1px solid var(--border); }
@@ -91,7 +103,6 @@
 
     .bar-text { width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; outline: none; cursor: text; user-select: text; padding: 0 6px; }
     
-    /* Bulle si phase courte (2 semaines) */
     .callout-bubble {
       position: absolute; bottom: 34px; left: 50%; transform: translateX(-50%);
       background: #1e293b; color: #ffffff; font-size: 0.72rem; font-weight: 600;
@@ -127,7 +138,7 @@
     .palette-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 2px; }
     .palette-btn:hover { background: #f1f5f9; border-radius: 3px; }
 
-    /* Pied de page et droits d'auteur */
+    /* Pied de page et mention d'auteur */
     footer {
       margin-top: auto; padding: 16px; border-top: 1px solid var(--border); display: flex;
       justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 0.82rem; color: var(--muted);
@@ -138,6 +149,13 @@
       font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-size: 0.78rem; text-decoration: none;
     }
     .btn-donate:hover { background: #d97706; }
+
+    /* Classe dynamique activée pendant la capture image PNG */
+    .export-mode .export-header { display: block; }
+    .export-mode .task-actions, 
+    .export-mode .group-actions, 
+    .export-mode .ms-del, 
+    .export-mode .resize-handle { display: none !important; }
 
     @media print {
       body { padding: 0; background: white; }
@@ -154,6 +172,7 @@
       Planning Chronologique Stratégique
     </div>
     <div class="toolbar">
+      <button class="btn btn-ppt" onclick="exportPNG()">📷 Exporter Image PNG (PPT)</button>
       <button class="btn btn-secondary" onclick="exportJSON()">💾 Exporter JSON</button>
       <button class="btn btn-secondary" onclick="document.getElementById('importInput').click()">📂 Importer JSON</button>
       <input type="file" id="importInput" style="display:none" accept=".json" onchange="importJSON(event)">
@@ -183,8 +202,12 @@
     </div>
   </div>
 
-  <div class="timeline-wrapper">
-    <div class="timeline-table" id="timelineTable"></div>
+  <!-- Zone capturée pour l'export image -->
+  <div id="exportContainer">
+    <div class="export-header" id="exportTitlePreview">Planning Chronologique Stratégique</div>
+    <div class="timeline-wrapper">
+      <div class="timeline-table" id="timelineTable"></div>
+    </div>
   </div>
 
   <footer>
@@ -222,6 +245,7 @@
 
     function render() {
       document.getElementById('projectTitle').innerText = state.projectTitle;
+      document.getElementById('exportTitlePreview').innerText = state.projectTitle;
       document.getElementById('startMonth').value = state.startMonth;
       document.getElementById('durationMonths').value = state.durationMonths;
 
@@ -419,6 +443,34 @@
       });
     }
 
+    // Capture graphique haute résolution pour PowerPoint / Image PNG
+    function exportPNG() {
+      const exportElem = document.getElementById('exportContainer');
+      document.body.classList.add('export-mode');
+
+      // Options html2canvas : facteur d'échelle 2x pour une netteté parfaite dans PowerPoint
+      html2canvas(exportElem, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0
+      }).then(canvas => {
+        document.body.classList.remove('export-mode');
+
+        const imageURL = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `${state.projectTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_planning.png`;
+        link.href = imageURL;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }).catch(err => {
+        document.body.classList.remove('export-mode');
+        alert("Erreur lors de la génération de l'image.");
+      });
+    }
+
     // Déplacement de phase
     function initDrag(e, task, totalSteps) {
       if (e.target.classList.contains('resize-handle') || e.target.isContentEditable) return;
@@ -507,8 +559,11 @@
       document.addEventListener('mouseup', onMouseUp);
     }
 
-    // Fonctions d'état et mise à jour
-    function updateTitle(val) { state.projectTitle = val.trim() || "Planning Projet"; }
+    // Fonctions d'état
+    function updateTitle(val) { 
+      state.projectTitle = val.trim() || "Planning Projet";
+      document.getElementById('exportTitlePreview').innerText = state.projectTitle;
+    }
     function updateSettings() {
       state.startMonth = document.getElementById('startMonth').value;
       state.durationMonths = parseInt(document.getElementById('durationMonths').value, 10);
@@ -580,12 +635,10 @@
       }
     }
 
-    // Gestion des Dons
     function openDonateInfo() {
-      alert("Merci pour votre soutien !\n\nOutil développé par Pierre HENRY.\nPour effectuer un don ou soutenir l'évolution de l'outil, contactez directement l'auteur ou insérez votre lien PayPal / Buy Me A Coffee.");
+      alert("Merci pour votre soutien !\n\nOutil développé par Pierre HENRY.\nPour effectuer un don ou soutenir l'évolution de l'outil, contactez directement l'auteur ou renseignez votre lien PayPal / Buy Me A Coffee.");
     }
 
-    // Import / Export JSON
     function exportJSON() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
       const a = document.createElement('a');
