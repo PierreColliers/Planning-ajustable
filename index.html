@@ -13,8 +13,8 @@
       --border-sub: #f1f5f9;
       --text: #0f172a;
       --muted: #64748b;
-      --half-col-width: 46px; /* 1 quinzaine (2 semaines) = 46px */
-      --row-height: 58px; /* Hauteur ajustée pour accueillir les bulles d'annotation */
+      --half-col-width: 46px; /* 1 demi-mois (2 semaines) = 46px */
+      --row-height: 56px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -55,7 +55,7 @@
 
     .timeline-wrapper {
       background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px;
-      overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative;
     }
 
     .timeline-table { display: flex; flex-direction: column; min-width: max-content; }
@@ -80,28 +80,15 @@
       border-right: 1px solid var(--border);
     }
 
-    /* Ligne de Jalons */
-    .milestones-row {
-      display: flex; background: #fffbeb; border-bottom: 2px solid #fef3c7; height: 50px; position: relative;
+    /* Piste de Jalons Principale */
+    .milestones-track-row {
+      display: flex; background: #fffdf5; border-bottom: 2px solid #fef08a; height: 50px; position: relative;
     }
-    .milestones-label-col {
+    .milestones-track-label {
       width: 270px; min-width: 270px; padding: 0 16px; font-weight: 700; font-size: 0.85rem;
-      color: #92400e; border-right: 1px solid #fde68a; display: flex; align-items: center; justify-content: space-between;
+      color: #854d0e; border-right: 1px solid #fef08a; display: flex; align-items: center; justify-content: space-between;
       background: #fef9c3; z-index: 2;
     }
-    .milestone-item {
-      position: absolute; top: 10px; transform: translateX(-50%); display: flex; flex-direction: column;
-      align-items: center; cursor: grab; z-index: 4; user-select: none;
-    }
-    .milestone-item:active { cursor: grabbing; }
-    .milestone-icon {
-      font-size: 1.25rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));
-    }
-    .milestone-text {
-      font-size: 0.72rem; font-weight: 700; color: #78350f; white-space: nowrap; background: #ffffff;
-      padding: 1px 5px; border-radius: 4px; border: 1px solid #fde68a; margin-top: 2px; outline: none;
-    }
-    .milestone-text:focus { border-color: var(--primary); }
 
     .group-row {
       background: #f1f5f9; border-bottom: 1px solid var(--border); display: flex; align-items: center;
@@ -150,7 +137,6 @@
     }
     .task-bar:active { cursor: grabbing; }
 
-    /* Style du texte classique (phase de 4 semaines ou plus) */
     .bar-text-inside {
       width: 100%; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       outline: none; border: 1px dashed transparent; border-radius: 4px; padding: 2px 6px;
@@ -159,7 +145,7 @@
     .bar-text-inside:hover { border-color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.1); }
     .bar-text-inside:focus { border-color: #ffffff; background: rgba(0,0,0,0.25); white-space: normal; }
 
-    /* Bulle d'annotation déportée avec flèche (phase courte = 2 semaines) */
+    /* Bulle callout si la phase ne dure que 2 semaines */
     .callout-bubble {
       position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
       background: #1e293b; color: #ffffff; font-size: 0.75rem; font-weight: 600;
@@ -177,11 +163,50 @@
     .resize-right { right: 0; border-radius: 0 6px 6px 0; }
     .resize-handle:hover { background: rgba(0,0,0,0.25); }
 
+    /* Composant Jalon universel */
+    .milestone-marker {
+      position: absolute; top: 6px; transform: translateX(-50%); display: flex; flex-direction: column;
+      align-items: center; cursor: grab; z-index: 6; user-select: none;
+    }
+    .milestone-marker:active { cursor: grabbing; }
+
+    .milestone-symbol-badge {
+      display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+      line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); cursor: pointer;
+      position: relative;
+    }
+    .milestone-symbol-badge:hover { transform: scale(1.15); transition: transform 0.15s; }
+
+    .milestone-bubble {
+      font-size: 0.72rem; font-weight: 700; color: #78350f; white-space: nowrap; background: #ffffff;
+      padding: 2px 6px; border-radius: 4px; border: 1px solid #fde68a; margin-top: 3px; outline: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 4px;
+    }
+    .milestone-bubble:focus { border-color: var(--primary); }
+
+    .ms-delete-icon {
+      color: #cbd5e1; font-size: 0.8rem; cursor: pointer; margin-left: 2px;
+    }
+    .ms-delete-icon:hover { color: #ef4444; }
+
+    /* Palette popover pour choisir l'icône du jalon */
+    .icon-palette {
+      position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+      background: white; border: 1px solid var(--border); box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      border-radius: 8px; padding: 6px; display: none; gap: 6px; z-index: 100;
+    }
+    .icon-palette.active { display: flex; }
+    .palette-btn {
+      font-size: 1.2rem; background: none; border: 1px solid transparent; border-radius: 4px;
+      cursor: pointer; padding: 4px; line-height: 1;
+    }
+    .palette-btn:hover { background: #f1f5f9; border-color: #cbd5e1; transform: scale(1.1); }
+
     @media print {
       body { padding: 0; background: white; }
-      .controls-panel, .toolbar, .delete-btn, .task-actions, .group-actions { display: none !important; }
+      .controls-panel, .toolbar, .delete-btn, .task-actions, .group-actions, .ms-delete-icon { display: none !important; }
       .timeline-wrapper { border: none; box-shadow: none; }
-      .header-label-col, .task-label-col, .milestones-label-col { width: 200px; min-width: 200px; }
+      .header-label-col, .task-label-col, .milestones-track-label { width: 200px; min-width: 200px; }
     }
   </style>
 </head>
@@ -189,7 +214,7 @@
 
   <header>
     <div class="editable-title" contenteditable="true" id="projectTitle" onblur="updateTitle(this.innerText)">
-      Planning Directeur de Déploiement
+      Planning Chronologique Stratégique
     </div>
     <div class="toolbar">
       <button class="btn btn-secondary" onclick="exportJSON()">💾 Exporter JSON</button>
@@ -215,7 +240,7 @@
       </select>
     </div>
     <div style="display: flex; gap: 10px; margin-left: auto;">
-      <button class="btn btn-warning" onclick="addMilestonePrompt()">📍 Nouveau jalon</button>
+      <button class="btn btn-warning" onclick="addMilestonePrompt()">📍 Ajouter un jalon</button>
       <button class="btn btn-secondary" onclick="addGroupPrompt()">📁 Nouvelle famille</button>
       <button class="btn btn-success" onclick="addTaskPrompt()">➕ Ajouter une phase</button>
     </div>
@@ -226,22 +251,23 @@
   </div>
 
   <script>
-    // 1 step = 1 quinzaine (environ 2 semaines). duration = 1 signifie 2 semaines.
+    const AVAILABLE_ICONS = ["💎", "🚩", "⭐", "🎯", "⚠️", "🏆", "🔑", "📌"];
+
     let state = {
-      projectTitle: "Planning Directeur de Déploiement",
+      projectTitle: "Planning Chronologique Stratégique",
       startMonth: "2026-10",
       durationMonths: 12,
       milestones: [
-        { id: "m1", name: "Comité de Lancement", step: 1, icon: "🚩" },
+        { id: "m1", name: "Comité de Cadrage", step: 1, icon: "🚩" },
         { id: "m2", name: "Validation APS", step: 6, icon: "💎" },
-        { id: "m3", name: "Livraison & Recette", step: 21, icon: "⭐" }
+        { id: "m3", name: "Livraison & Clés", step: 21, icon: "🔑" }
       ],
       groups: ["1. Conception & Études", "2. Travaux & Réalisation", "3. Déploiement & Clôture"],
       tasks: [
-        { id: "t1", name: "Cadrage initial", group: "1. Conception & Études", start: 0, duration: 1, color: "#2563eb" }, // Phase courte (2 sem) -> bulle
-        { id: "t2", name: "Spécifications & Validations", group: "1. Conception & Études", start: 2, duration: 4, color: "#4f46e5" },
+        { id: "t1", name: "Cadrage initial", group: "1. Conception & Études", start: 0, duration: 1, color: "#2563eb" }, // 2 sem -> bulle
+        { id: "t2", name: "Spécifications & Plans", group: "1. Conception & Études", start: 2, duration: 4, color: "#4f46e5" },
         { id: "t3", name: "Passation des marchés", group: "2. Travaux & Réalisation", start: 6, duration: 3, color: "#0891b2" },
-        { id: "t4", name: "Achat fournitures", group: "2. Travaux & Réalisation", start: 9, duration: 1, color: "#ea580c" }, // Phase courte -> bulle
+        { id: "t4", name: "Fournitures critiques", group: "2. Travaux & Réalisation", start: 9, duration: 1, color: "#ea580c" }, // 2 sem -> bulle
         { id: "t5", name: "Chantier & Aménagements", group: "2. Travaux & Réalisation", start: 10, duration: 9, color: "#059669" }
       ]
     };
@@ -263,7 +289,7 @@
 
       const labelCol1 = document.createElement('div');
       labelCol1.className = 'header-label-col';
-      labelCol1.innerText = 'Phases'; // Libellé simplifié
+      labelCol1.innerText = 'Phases';
       headerRowMonths.appendChild(labelCol1);
 
       const [startYear, startM] = state.startMonth.split('-').map(Number);
@@ -298,54 +324,34 @@
       }
       container.appendChild(headerRowSub);
 
-      // 3. Ligne dédiée aux Jalons Clés
-      const milestonesRow = document.createElement('div');
-      milestonesRow.className = 'milestones-row';
+      // 3. Piste des Jalons Clés
+      const trackRow = document.createElement('div');
+      trackRow.className = 'milestones-track-row';
 
-      const msLabel = document.createElement('div');
-      msLabel.className = 'milestones-label-col';
-      msLabel.innerHTML = `<span>📍 Jalons & Repères</span><button class="btn-mini" onclick="addMilestonePrompt()">➕ Jalon</button>`;
-      milestonesRow.appendChild(msLabel);
+      const trackLabel = document.createElement('div');
+      trackLabel.className = 'milestones-track-label';
+      trackLabel.innerHTML = `<span>📍 Jalons & Comités</span><button class="btn-mini" onclick="addMilestonePrompt()">➕ Jalon</button>`;
+      trackRow.appendChild(trackLabel);
 
-      const msGrid = document.createElement('div');
-      msGrid.className = 'grid-container';
+      const trackGrid = document.createElement('div');
+      trackGrid.className = 'grid-container';
 
       for (let s = 0; s < totalSteps; s++) {
         const gc = document.createElement('div');
         gc.className = 'grid-col' + (s % 2 === 1 ? ' month-boundary' : '');
-        msGrid.appendChild(gc);
+        trackGrid.appendChild(gc);
       }
 
+      // Placement des jalons
       state.milestones.forEach(ms => {
-        const el = document.createElement('div');
-        el.className = 'milestone-item';
-        el.id = `ms-${ms.id}`;
-        el.style.left = ((ms.step + 0.5) * HALF_WIDTH) + 'px';
-
-        const icon = document.createElement('span');
-        icon.className = 'milestone-icon';
-        icon.innerText = ms.icon || '💎';
-        icon.title = 'Glissez pour déplacer / Double-cliquez pour supprimer';
-        icon.ondblclick = () => deleteMilestone(ms.id);
-
-        const text = document.createElement('div');
-        text.className = 'milestone-text';
-        text.contentEditable = "true";
-        text.innerText = ms.name;
-        text.addEventListener('mousedown', (e) => e.stopPropagation());
-        text.onblur = (e) => updateMilestoneName(ms.id, e.target.innerText);
-
-        el.appendChild(icon);
-        el.appendChild(text);
-        el.addEventListener('mousedown', (e) => initMilestoneDrag(e, ms, totalSteps));
-
-        msGrid.appendChild(el);
+        const marker = createMilestoneElement(ms, totalSteps);
+        trackGrid.appendChild(marker);
       });
 
-      milestonesRow.appendChild(msGrid);
-      container.appendChild(milestonesRow);
+      trackRow.appendChild(trackGrid);
+      container.appendChild(trackRow);
 
-      // 4. Lignes des Familles et Tâches
+      // 4. Lignes des Groupes et Phases
       state.groups.forEach((groupName) => {
         const groupHeader = document.createElement('div');
         groupHeader.className = 'group-row';
@@ -366,7 +372,6 @@
           const row = document.createElement('div');
           row.className = 'task-row';
 
-          // Colonne latérale de la phase
           const titleCol = document.createElement('div');
           titleCol.className = 'task-label-col';
 
@@ -383,7 +388,7 @@
           colorInput.type = 'color';
           colorInput.className = 'color-picker';
           colorInput.value = task.color || '#2563eb';
-          colorInput.title = 'Changer la couleur';
+          colorInput.title = 'Modifier la couleur';
           colorInput.oninput = (e) => updateTaskColor(task.id, e.target.value);
 
           const delBtn = document.createElement('button');
@@ -398,7 +403,6 @@
           titleCol.appendChild(actionsWrap);
           row.appendChild(titleCol);
 
-          // Grille chronologique
           const gridWrap = document.createElement('div');
           gridWrap.className = 'grid-container';
 
@@ -408,7 +412,7 @@
             gridWrap.appendChild(gridCol);
           }
 
-          // Barre horizontale
+          // Barre
           const bar = document.createElement('div');
           bar.className = 'task-bar';
           bar.id = `bar-${task.id}`;
@@ -416,7 +420,7 @@
           bar.style.left = (task.start * HALF_WIDTH) + 'px';
           bar.style.width = (task.duration * HALF_WIDTH) + 'px';
 
-          // Traitement intelligent de la taille : bulle si durée = 1 (2 semaines), sinon texte dans la barre
+          // Traitement durée courte (bulle callout) vs normale
           if (task.duration <= 1) {
             const callout = document.createElement('div');
             callout.className = 'callout-bubble';
@@ -435,7 +439,6 @@
             bar.appendChild(barText);
           }
 
-          // Poignées d'étirement
           const hl = document.createElement('div');
           hl.className = 'resize-handle resize-left';
           hl.addEventListener('mousedown', (e) => initResize(e, task, 'left', totalSteps));
@@ -446,8 +449,6 @@
 
           bar.appendChild(hl);
           bar.appendChild(hr);
-
-          // Glisser-déposer de la barre
           bar.addEventListener('mousedown', (e) => initDrag(e, task, totalSteps));
 
           gridWrap.appendChild(bar);
@@ -457,7 +458,133 @@
       });
     }
 
-    // Drag-and-drop de phase
+    // Création du composant Jalon avec sélecteur de symbole et suppression
+    function createMilestoneElement(ms, totalSteps) {
+      const el = document.createElement('div');
+      el.className = 'milestone-marker';
+      el.id = `ms-${ms.id}`;
+      el.style.left = ((ms.step + 0.5) * HALF_WIDTH) + 'px';
+
+      // Badge du symbole
+      const badge = document.createElement('div');
+      badge.className = 'milestone-symbol-badge';
+      badge.innerText = ms.icon || '💎';
+      badge.title = 'Cliquer pour changer le symbole / Glisser pour déplacer';
+
+      // Menu popover de sélection du symbole
+      const palette = document.createElement('div');
+      palette.className = 'icon-palette';
+      AVAILABLE_ICONS.forEach(ic => {
+        const btn = document.createElement('button');
+        btn.className = 'palette-btn';
+        btn.innerText = ic;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          changeMilestoneIcon(ms.id, ic);
+        };
+        palette.appendChild(btn);
+      });
+
+      badge.onclick = (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.icon-palette').forEach(p => { if (p !== palette) p.classList.remove('active'); });
+        palette.classList.toggle('active');
+      };
+
+      badge.appendChild(palette);
+
+      // Étiquette texte + bouton de suppression direct
+      const bubble = document.createElement('div');
+      bubble.className = 'milestone-bubble';
+
+      const labelText = document.createElement('span');
+      labelText.contentEditable = "true";
+      labelText.innerText = ms.name;
+      labelText.addEventListener('mousedown', (e) => e.stopPropagation());
+      labelText.onblur = (e) => updateMilestoneName(ms.id, e.target.innerText);
+
+      const delBtn = document.createElement('span');
+      delBtn.className = 'ms-delete-icon';
+      delBtn.innerHTML = '&times;';
+      delBtn.title = 'Supprimer ce jalon';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteMilestone(ms.id);
+      };
+
+      bubble.appendChild(labelText);
+      bubble.appendChild(delBtn);
+
+      el.appendChild(badge);
+      el.appendChild(bubble);
+
+      // Événement de déplacement à la souris
+      el.addEventListener('mousedown', (e) => initMilestoneDrag(e, ms, totalSteps));
+
+      return el;
+    }
+
+    // Glisser-déposer de jalon
+    function initMilestoneDrag(e, ms, totalSteps) {
+      if (e.target.isContentEditable || e.target.classList.contains('palette-btn') || e.target.classList.contains('ms-delete-icon')) return;
+      e.preventDefault();
+      const startX = e.clientX;
+      const initialStep = ms.step;
+
+      function onMouseMove(moveEvent) {
+        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
+        let newStep = initialStep + delta;
+        if (newStep < 0) newStep = 0;
+        if (newStep >= totalSteps) newStep = totalSteps - 1;
+
+        ms.step = newStep;
+        const marker = document.getElementById(`ms-${ms.id}`);
+        if (marker) marker.style.left = ((newStep + 0.5) * HALF_WIDTH) + 'px';
+      }
+
+      function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        render();
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function changeMilestoneIcon(id, newIcon) {
+      const ms = state.milestones.find(m => m.id === id);
+      if (ms) {
+        ms.icon = newIcon;
+        render();
+      }
+    }
+
+    function deleteMilestone(id) {
+      if (confirm("Supprimer ce jalon ?")) {
+        state.milestones = state.milestones.filter(m => m.id !== id);
+        render();
+      }
+    }
+
+    function addMilestonePrompt() {
+      const name = prompt("Intitulé du nouveau jalon :", "Nouveau jalon");
+      if (!name) return;
+      state.milestones.push({
+        id: 'ms_' + Date.now(),
+        name: name.trim(),
+        step: 2,
+        icon: "💎"
+      });
+      render();
+    }
+
+    function updateMilestoneName(id, newName) {
+      const ms = state.milestones.find(m => m.id === id);
+      if (ms) ms.name = newName.trim() || "Jalon";
+    }
+
+    // Gestion Drag & Resize des phases
     function initDrag(e, task, totalSteps) {
       if (e.target.classList.contains('resize-handle') || e.target.isContentEditable) return;
       e.preventDefault();
@@ -481,223 +608,4 @@
         render();
       }
 
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    }
-
-    // Redimensionnement de phase (mise à jour dynamique bulle vs texte interne)
-    function initResize(e, task, direction, totalSteps) {
-      e.stopPropagation();
-      e.preventDefault();
-      const startX = e.clientX;
-      const initialStart = task.start;
-      const initialDuration = task.duration;
-
-      function onMouseMove(moveEvent) {
-        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
-
-        if (direction === 'right') {
-          let newDuration = initialDuration + delta;
-          if (newDuration < 1) newDuration = 1;
-          if (task.start + newDuration > totalSteps) newDuration = totalSteps - task.start;
-          task.duration = newDuration;
-        } else {
-          let newStart = initialStart + delta;
-          let newDuration = initialDuration - delta;
-          if (newStart < 0) { newStart = 0; newDuration = initialStart + initialDuration; }
-          if (newDuration < 1) { newDuration = 1; newStart = initialStart + initialDuration - 1; }
-          task.start = newStart;
-          task.duration = newDuration;
-        }
-
-        const el = document.getElementById(`bar-${task.id}`);
-        if (el) {
-          el.style.left = (task.start * HALF_WIDTH) + 'px';
-          el.style.width = (task.duration * HALF_WIDTH) + 'px';
-        }
-      }
-
-      function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        render(); // Re-render pour appliquer l'affichage bulle si la durée est tombée à 1
-      }
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    }
-
-    // Déplacement interactif des jalons
-    function initMilestoneDrag(e, ms, totalSteps) {
-      if (e.target.isContentEditable) return;
-      e.preventDefault();
-      const startX = e.clientX;
-      const initialStep = ms.step;
-
-      function onMouseMove(moveEvent) {
-        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
-        let newStep = initialStep + delta;
-        if (newStep < 0) newStep = 0;
-        if (newStep >= totalSteps) newStep = totalSteps - 1;
-
-        ms.step = newStep;
-        const el = document.getElementById(`ms-${ms.id}`);
-        if (el) el.style.left = ((newStep + 0.5) * HALF_WIDTH) + 'px';
-      }
-
-      function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        render();
-      }
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    }
-
-    // Gestion des Jalons
-    function addMilestonePrompt() {
-      const name = prompt("Intitulé du jalon :", "Comité de Validation");
-      if (!name) return;
-      const icons = ["💎", "🚩", "⭐", "🎯", "🔑", "🚀"];
-      const iconChoice = prompt(`Choisissez un symbole (${icons.join(" ")}):`, "💎") || "💎";
-
-      state.milestones.push({
-        id: 'ms_' + Date.now(),
-        name: name.trim(),
-        step: 2,
-        icon: iconChoice.trim()
-      });
-      render();
-    }
-
-    function updateMilestoneName(id, newName) {
-      const ms = state.milestones.find(m => m.id === id);
-      if (ms) ms.name = newName.trim() || "Jalon";
-    }
-
-    function deleteMilestone(id) {
-      if (confirm("Supprimer ce jalon ?")) {
-        state.milestones = state.milestones.filter(m => m.id !== id);
-        render();
-      }
-    }
-
-    // Fonctions d'état
-    function updateTitle(newTitle) { state.projectTitle = newTitle.trim() || "Planning Projet"; }
-
-    function updateSettings() {
-      state.startMonth = document.getElementById('startMonth').value;
-      state.durationMonths = parseInt(document.getElementById('durationMonths').value, 10);
-      render();
-    }
-
-    function updateTaskName(id, newName) {
-      const task = state.tasks.find(t => t.id === id);
-      if (task) {
-        task.name = newName.trim() || "Phase";
-        render();
-      }
-    }
-
-    function updateTaskColor(id, newColor) {
-      const task = state.tasks.find(t => t.id === id);
-      if (task) {
-        task.color = newColor;
-        const el = document.getElementById(`bar-${id}`);
-        if (el) el.style.backgroundColor = newColor;
-      }
-    }
-
-    function addGroupPrompt() {
-      const name = prompt("Nom de la nouvelle famille :", "Nouvelle famille");
-      if (name && !state.groups.includes(name.trim())) {
-        state.groups.push(name.trim());
-        render();
-      }
-    }
-
-    function renameGroup(oldName, newName) {
-      const trimmed = newName.trim();
-      if (!trimmed || trimmed === oldName) return;
-      const index = state.groups.indexOf(oldName);
-      if (index !== -1) {
-        state.groups[index] = trimmed;
-        state.tasks.forEach(t => { if (t.group === oldName) t.group = trimmed; });
-        render();
-      }
-    }
-
-    function deleteGroup(groupName) {
-      if (confirm(`Supprimer la famille "${groupName}" et ses phases ?`)) {
-        state.groups = state.groups.filter(g => g !== groupName);
-        state.tasks = state.tasks.filter(t => t.group !== groupName);
-        render();
-      }
-    }
-
-    function addTaskPrompt() {
-      if (state.groups.length === 0) { alert("Veuillez d'abord créer une famille."); return; }
-      addTaskToGroup(state.groups[0]);
-    }
-
-    function addTaskToGroup(groupName) {
-      const name = prompt(`Nom de la phase pour "${groupName}" :`, "Nouvelle phase");
-      if (!name) return;
-      const colors = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#4f46e5'];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
-      state.tasks.push({
-        id: 't_' + Date.now(),
-        name: name.trim(),
-        group: groupName,
-        start: 0,
-        duration: 1, // Durée initiale courte de 2 semaines
-        color: randomColor
-      });
-      render();
-    }
-
-    function deleteTask(id) {
-      if (confirm("Supprimer cette phase ?")) {
-        state.tasks = state.tasks.filter(t => t.id !== id);
-        render();
-      }
-    }
-
-    // Export & Import JSON
-    function exportJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-      const a = document.createElement('a');
-      a.setAttribute("href", dataStr);
-      a.setAttribute("download", `${state.projectTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_planning.json`);
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    function importJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          if (parsed && parsed.tasks) {
-            state = parsed;
-            if (!state.milestones) state.milestones = [];
-            render();
-          } else {
-            alert("Format JSON non valide.");
-          }
-        } catch (err) {
-          alert("Erreur lors de la lecture du fichier JSON.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    window.onload = render;
-  </script>
-</body>
-</html>
+      document.addEventListener('mousemove', onMouseMove)
