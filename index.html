@@ -608,4 +608,169 @@
         render();
       }
 
-      document.addEventListener('mousemove', onMouseMove)
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function initResize(e, task, direction, totalSteps) {
+      e.stopPropagation();
+      e.preventDefault();
+      const startX = e.clientX;
+      const initialStart = task.start;
+      const initialDuration = task.duration;
+
+      function onMouseMove(moveEvent) {
+        const delta = Math.round((moveEvent.clientX - startX) / HALF_WIDTH);
+
+        if (direction === 'right') {
+          let newDuration = initialDuration + delta;
+          if (newDuration < 1) newDuration = 1;
+          if (task.start + newDuration > totalSteps) newDuration = totalSteps - task.start;
+          task.duration = newDuration;
+        } else {
+          let newStart = initialStart + delta;
+          let newDuration = initialDuration - delta;
+          if (newStart < 0) { newStart = 0; newDuration = initialStart + initialDuration; }
+          if (newDuration < 1) { newDuration = 1; newStart = initialStart + initialDuration - 1; }
+          task.start = newStart;
+          task.duration = newDuration;
+        }
+
+        const el = document.getElementById(`bar-${task.id}`);
+        if (el) {
+          el.style.left = (task.start * HALF_WIDTH) + 'px';
+          el.style.width = (task.duration * HALF_WIDTH) + 'px';
+        }
+      }
+
+      function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+        render();
+      }
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+
+    function updateTitle(newTitle) { state.projectTitle = newTitle.trim() || "Planning Projet"; }
+
+    function updateSettings() {
+      state.startMonth = document.getElementById('startMonth').value;
+      state.durationMonths = parseInt(document.getElementById('durationMonths').value, 10);
+      render();
+    }
+
+    function updateTaskName(id, newName) {
+      const task = state.tasks.find(t => t.id === id);
+      if (task) {
+        task.name = newName.trim() || "Phase";
+        render();
+      }
+    }
+
+    function updateTaskColor(id, newColor) {
+      const task = state.tasks.find(t => t.id === id);
+      if (task) {
+        task.color = newColor;
+        const el = document.getElementById(`bar-${id}`);
+        if (el) el.style.backgroundColor = newColor;
+      }
+    }
+
+    function addGroupPrompt() {
+      const name = prompt("Nom de la nouvelle famille :", "Nouvelle famille");
+      if (name && !state.groups.includes(name.trim())) {
+        state.groups.push(name.trim());
+        render();
+      }
+    }
+
+    function renameGroup(oldName, newName) {
+      const trimmed = newName.trim();
+      if (!trimmed || trimmed === oldName) return;
+      const index = state.groups.indexOf(oldName);
+      if (index !== -1) {
+        state.groups[index] = trimmed;
+        state.tasks.forEach(t => { if (t.group === oldName) t.group = trimmed; });
+        render();
+      }
+    }
+
+    function deleteGroup(groupName) {
+      if (confirm(`Supprimer la famille "${groupName}" et ses phases ?`)) {
+        state.groups = state.groups.filter(g => g !== groupName);
+        state.tasks = state.tasks.filter(t => t.group !== groupName);
+        render();
+      }
+    }
+
+    function addTaskPrompt() {
+      if (state.groups.length === 0) { alert("Veuillez d'abord créer une famille."); return; }
+      addTaskToGroup(state.groups[0]);
+    }
+
+    function addTaskToGroup(groupName) {
+      const name = prompt(`Nom de la phase pour "${groupName}" :`, "Nouvelle phase");
+      if (!name) return;
+      const colors = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#4f46e5'];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      state.tasks.push({
+        id: 't_' + Date.now(),
+        name: name.trim(),
+        group: groupName,
+        start: 0,
+        duration: 1,
+        color: randomColor
+      });
+      render();
+    }
+
+    function deleteTask(id) {
+      if (confirm("Supprimer cette phase ?")) {
+        state.tasks = state.tasks.filter(t => t.id !== id);
+        render();
+      }
+    }
+
+    function exportJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `${state.projectTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}_planning.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && parsed.tasks) {
+            state = parsed;
+            if (!state.milestones) state.milestones = [];
+            render();
+          } else {
+            alert("Format JSON non valide.");
+          }
+        } catch (err) {
+          alert("Erreur lors de la lecture du fichier JSON.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Fermeture des palettes si clic à l'extérieur
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.icon-palette').forEach(p => p.classList.remove('active'));
+    });
+
+    window.onload = render;
+  </script>
+</body>
+</html>
